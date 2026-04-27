@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">Cuisine terminée avec plan de travail en céramique</title>
+  <desc id="desc">Illustration d'une réalisation finale avec façade bois et plan de travail en céramique.</desc>
+  <rect width="1200" height="820" fill="#f8f3ec"/>
+  <rect x="90" y="100" width="1020" height="620" rx="36" fill="#fff"/>
+  <rect x="170" y="185" width="860" height="170" rx="24" fill="#ede2d5"/>
+  <rect x="185" y="380" width="420" height="240" rx="24" fill="#b57a55"/>
+  <rect x="620" y="380" width="225" height="240" rx="24" fill="#d7c9ba"/>
+  <rect x="865" y="380" width="150" height="240" rx="24" fill="#d7c9ba"/>
+  <rect x="185" y="360" width="830" height="30" rx="15" fill="#5d6672"/>
+  <circle cx="735" cy="500" r="26" fill="#fff"/>
+  <circle cx="940" cy="500" r="26" fill="#fff"/>
+  <rect x="320" y="445" width="140" height="120" rx="18" fill="#c69169"/>
+  <rect x="320" y="420" width="140" height="18" rx="9" fill="#1d232b"/>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">Cuisine premium avec plan de travail en céramique</title>
+  <desc id="desc">Illustration d'une cuisine haut de gamme avec îlot central et plan de travail en céramique.</desc>
+  <rect width="1200" height="820" fill="#f4efe8"/>
+  <rect x="80" y="110" width="1040" height="600" rx="36" fill="#fff"/>
+  <rect x="130" y="170" width="940" height="170" rx="24" fill="#e1d1bf"/>
+  <rect x="150" y="360" width="900" height="270" rx="28" fill="#efe5db"/>
+  <rect x="220" y="405" width="760" height="36" rx="18" fill="#c4ad96"/>
+  <rect x="230" y="450" width="740" height="120" rx="22" fill="#fffdf9"/>
+  <rect x="230" y="385" width="740" height="28" rx="14" fill="#8a5a44"/>
+  <circle cx="300" cy="255" r="38" fill="#b87453"/>
+  <rect x="400" y="218" width="250" height="28" rx="14" fill="#8a5a44"/>
+  <rect x="400" y="262" width="180" height="18" rx="9" fill="#a48973"/>
+  <rect x="745" y="210" width="240" height="80" rx="20" fill="#fff"/>
+  <rect x="790" y="480" width="140" height="70" rx="18" fill="#d7c9ba"/>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">Processus fabrication livraison pose</title>
+  <desc id="desc">Illustration d'un processus en plusieurs étapes pour la fabrication et la pose d'un plan de travail en céramique.</desc>
+  <rect width="1200" height="820" fill="#f7f2eb"/>
+  <rect x="120" y="140" width="960" height="540" rx="36" fill="#fff"/>
+  <rect x="170" y="280" width="170" height="170" rx="26" fill="#efe5db"/>
+  <rect x="405" y="280" width="170" height="170" rx="26" fill="#d7c9ba"/>
+  <rect x="640" y="280" width="170" height="170" rx="26" fill="#b57a55"/>
+  <rect x="875" y="280" width="170" height="170" rx="26" fill="#1d232b"/>
+  <path d="M340 365h65M575 365h65M810 365h65" stroke="#8a5a44" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="255" cy="365" r="36" fill="#fff"/>
+  <circle cx="490" cy="365" r="36" fill="#fff"/>
+  <circle cx="725" cy="365" r="36" fill="#fff"/>
+  <circle cx="960" cy="365" r="36" fill="#fff"/>
+  <text x="245" y="378" font-family="Arial, sans-serif" font-size="34" fill="#1d232b">1</text>
+  <text x="480" y="378" font-family="Arial, sans-serif" font-size="34" fill="#1d232b">2</text>
+  <text x="715" y="378" font-family="Arial, sans-serif" font-size="34" fill="#1d232b">3</text>
+  <text x="950" y="378" font-family="Arial, sans-serif" font-size="34" fill="#1d232b">4</text>
+</svg>

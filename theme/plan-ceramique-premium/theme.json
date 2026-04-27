@@ -1,0 +1,89 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "color": {
+      "custom": true,
+      "defaultPalette": false,
+      "palette": [
+        { "slug": "sand", "name": "Sand", "color": "#f4efe8" },
+        { "slug": "stone", "name": "Stone", "color": "#d7c9ba" },
+        { "slug": "charcoal", "name": "Charcoal", "color": "#1d232b" },
+        { "slug": "earth", "name": "Earth", "color": "#8a5a44" },
+        { "slug": "clay", "name": "Clay", "color": "#b87453" },
+        { "slug": "white", "name": "White", "color": "#ffffff" }
+      ]
+    },
+    "layout": {
+      "contentSize": "860px",
+      "wideSize": "1320px"
+    },
+    "spacing": {
+      "blockGap": "1.5rem",
+      "margin": true,
+      "padding": true,
+      "units": ["px", "rem", "%", "vw"]
+    },
+    "typography": {
+      "customFontSize": true,
+      "dropCap": false,
+      "fluid": true,
+      "fontFamilies": [
+        {
+          "fontFamily": "\"Fraunces\", Georgia, serif",
+          "name": "Fraunces",
+          "slug": "display"
+        },
+        {
+          "fontFamily": "\"Manrope\", \"Segoe UI\", sans-serif",
+          "name": "Manrope",
+          "slug": "body"
+        }
+      ],
+      "fontSizes": [
+        { "slug": "xs", "name": "XS", "size": "0.875rem" },
+        { "slug": "sm", "name": "SM", "size": "1rem" },
+        { "slug": "md", "name": "MD", "size": "1.125rem" },
+        { "slug": "lg", "name": "LG", "size": "1.5rem" },
+        { "slug": "xl", "name": "XL", "size": "2rem" },
+        { "slug": "xxl", "name": "XXL", "size": "clamp(2.5rem, 4vw, 4.75rem)" }
+      ]
+    },
+    "useRootPaddingAwareAlignments": true
+  },
+  "styles": {
+    "color": {
+      "background": "#fffdf9",
+      "text": "#1d232b"
+    },
+    "spacing": {
+      "padding": {
+        "left": "0",
+        "right": "0"
+      }
+    },
+    "typography": {
+      "fontFamily": "var(--wp--preset--font-family--body)",
+      "lineHeight": "1.7"
+    },
+    "blocks": {
+      "core/button": {
+        "border": {
+          "radius": "999px"
+        },
+        "spacing": {
+          "padding": {
+            "top": "0.85rem",
+            "right": "1.5rem",
+            "bottom": "0.85rem",
+            "left": "1.5rem"
+          }
+        },
+        "typography": {
+          "fontWeight": "700"
+        }
+      }
+    }
+  }
+}

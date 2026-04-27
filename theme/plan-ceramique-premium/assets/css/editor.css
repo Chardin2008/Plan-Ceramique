@@ -1,0 +1,16 @@
+body {
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  color: #1d232b;
+}
+
+.editor-styles-wrapper {
+  background: #fffdf9;
+}
+
+.editor-styles-wrapper .wp-block {
+  max-width: 1320px;
+}
+
+.editor-styles-wrapper .wp-block[data-align="wide"] {
+  max-width: 1320px;
+}

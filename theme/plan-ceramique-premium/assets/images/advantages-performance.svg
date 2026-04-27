@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">Avantages d'un plan de travail en céramique</title>
+  <desc id="desc">Illustration symbolisant la résistance à la chaleur, aux rayures et la facilité d'entretien.</desc>
+  <rect width="1200" height="820" fill="#fffdf9"/>
+  <rect x="140" y="120" width="920" height="580" rx="34" fill="#ffffff"/>
+  <circle cx="330" cy="390" r="110" fill="#f4efe8"/>
+  <path d="M330 310c-28 30-48 70-48 104 0 44 28 78 48 104 20-26 48-60 48-104 0-34-20-74-48-104z" fill="#b87453"/>
+  <circle cx="600" cy="390" r="110" fill="#f4efe8"/>
+  <path d="M540 430l38-38 32 32 64-64" fill="none" stroke="#8a5a44" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="870" cy="390" r="110" fill="#f4efe8"/>
+  <path d="M820 350l100 100M920 350L820 450" stroke="#1d232b" stroke-width="20" stroke-linecap="round"/>
+  <rect x="245" y="560" width="170" height="20" rx="10" fill="#8a5a44"/>
+  <rect x="515" y="560" width="170" height="20" rx="10" fill="#8a5a44"/>
+  <rect x="785" y="560" width="170" height="20" rx="10" fill="#8a5a44"/>
+</svg>

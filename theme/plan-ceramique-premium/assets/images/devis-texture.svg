@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">Texture rassurante pour demande de devis</title>
+  <desc id="desc">Illustration texturée évoquant un accompagnement serein pour une demande de devis en céramique.</desc>
+  <rect width="1200" height="820" fill="#f5efe7"/>
+  <rect x="100" y="100" width="1000" height="620" rx="42" fill="#fff"/>
+  <path d="M170 210c80 18 130 75 200 92s150-10 230 28 130 112 215 134 160-8 255 46" fill="none" stroke="#d7c9ba" stroke-width="30" stroke-linecap="round"/>
+  <path d="M170 320c88 18 150 84 240 96s164-18 244 18 128 108 206 122" fill="none" stroke="#b57a55" stroke-width="16" stroke-linecap="round"/>
+  <path d="M220 505c70 20 112 58 180 68s134-10 198 18 110 80 196 92" fill="none" stroke="#8a5a44" stroke-width="10" stroke-linecap="round"/>
+  <rect x="760" y="190" width="220" height="140" rx="24" fill="#fffdf9"/>
+  <rect x="804" y="232" width="132" height="16" rx="8" fill="#8a5a44"/>
+  <rect x="804" y="264" width="96" height="12" rx="6" fill="#b59d89"/>
+</svg>

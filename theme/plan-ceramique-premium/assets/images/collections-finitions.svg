@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 820" role="img" aria-labelledby="title desc">
+  <title id="title">Couleurs et finitions de plans de travail en céramique</title>
+  <desc id="desc">Illustration de plusieurs échantillons de couleurs et finitions céramiques.</desc>
+  <rect width="1200" height="820" fill="#fffdf9"/>
+  <rect x="110" y="100" width="980" height="620" rx="36" fill="#ffffff"/>
+  <rect x="180" y="180" width="220" height="180" rx="24" fill="#efe5db"/>
+  <rect x="490" y="180" width="220" height="180" rx="24" fill="#d6c2b1"/>
+  <rect x="800" y="180" width="220" height="180" rx="24" fill="#b28c72"/>
+  <rect x="180" y="430" width="220" height="180" rx="24" fill="#f5f2ed"/>
+  <path d="M215 470c40 20 60 60 110 72s92 4 126 42" fill="none" stroke="#c3ae9b" stroke-width="12" stroke-linecap="round"/>
+  <rect x="490" y="430" width="220" height="180" rx="24" fill="#534944"/>
+  <rect x="800" y="430" width="220" height="180" rx="24" fill="#fff"/>
+  <path d="M830 470c50 14 90 44 120 52s58 2 84 28" fill="none" stroke="#9d846f" stroke-width="10" stroke-linecap="round"/>
+</svg>

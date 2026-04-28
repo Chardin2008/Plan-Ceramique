@@ -45,6 +45,9 @@ services:
         if ( ! defined( 'DISALLOW_FILE_EDIT' ) ) {
           define( 'DISALLOW_FILE_EDIT', true );
         }
+        if ( ! defined( 'DISABLE_WP_CRON' ) ) {
+          define( 'DISABLE_WP_CRON', true );
+        }
         if ( ! defined( 'FS_METHOD' ) ) {
           define( 'FS_METHOD', 'direct' );
         }
@@ -52,7 +55,7 @@ services:
       - wordpress_data:/var/www/html
       - ./theme/plan-ceramique-premium:/var/www/html/wp-content/themes/plan-ceramique-premium
     healthcheck:
-      test: ["CMD-SHELL", "php -r 'exit(@fopen(\"http://localhost/wp-login.php\", \"r\") ? 0 : 1);'"]
+      test: ["CMD-SHELL", "php -r 'exit(file_exists(\"/var/www/html/wp-load.php\") ? 0 : 1);'"]
       interval: 15s
       timeout: 10s
       retries: 10

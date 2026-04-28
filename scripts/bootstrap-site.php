@@ -197,10 +197,14 @@ function pcp_upsert_post(array $args): int
     return (int) wp_insert_post($args);
 }
 
-function pcp_set_yoast_meta(int $postId, string $title, string $description): void
+function pcp_set_yoast_meta(int $postId, string $title, string $description, string $focusKeyword = ''): void
 {
     update_post_meta($postId, '_yoast_wpseo_title', $title);
     update_post_meta($postId, '_yoast_wpseo_metadesc', $description);
+
+    if ($focusKeyword) {
+        update_post_meta($postId, '_yoast_wpseo_focuskw', $focusKeyword);
+    }
 }
 
 function pcp_default_cf7_meta(string $key, $fallback)
@@ -839,6 +843,22 @@ pcp_set_yoast_meta(
     'Plan de travail en céramique sur mesure pour cuisine premium : conseil, fabrication, livraison et pose partout en France.'
 );
 
+$seoFocusKeywords = [
+    $homePageId => 'plan de travail en céramique',
+    $pageIds['nos-services'] => 'services plan de travail céramique',
+    $pageIds['materiaux'] => 'matériaux céramiques cuisine',
+    $pageIds['collections'] => 'finitions céramiques cuisine',
+    $pageIds['realisations'] => 'réalisations cuisine céramique',
+    $pageIds['blog'] => 'blog plan de travail céramique',
+    $pageIds['contact'] => 'contact plan de travail céramique',
+    $pageIds['demander-un-devis'] => 'devis plan de travail céramique',
+];
+
+foreach ($seoFocusKeywords as $postId => $focusKeyword) {
+    update_post_meta((int) $postId, '_yoast_wpseo_focuskw', $focusKeyword);
+    update_post_meta((int) $postId, '_yoast_wpseo_focuskeywords', wp_json_encode([['keyword' => $focusKeyword, 'score' => 'good']]));
+}
+
 $menuId = wp_get_nav_menu_object('Menu principal');
 $menuId = $menuId ? (int) $menuId->term_id : (int) wp_create_nav_menu('Menu principal');
 
@@ -954,6 +974,21 @@ foreach ($posts as $postData) {
 
     wp_set_post_categories($postId, [$categoryId]);
     pcp_set_yoast_meta($postId, $postData['seo_title'], $postData['seo_description']);
+}
+
+$postFocusKeywords = [
+    'plan-de-travail-ceramique-ou-quartz' => 'céramique ou quartz',
+    'prendre-les-mesures-plan-de-travail-ceramique' => 'mesures plan de travail céramique',
+    'entretien-plan-de-travail-ceramique' => 'entretien plan de travail céramique',
+];
+
+foreach ($postFocusKeywords as $slug => $focusKeyword) {
+    $post = get_page_by_path($slug, OBJECT, 'post');
+
+    if ($post) {
+        update_post_meta((int) $post->ID, '_yoast_wpseo_focuskw', $focusKeyword);
+        update_post_meta((int) $post->ID, '_yoast_wpseo_focuskeywords', wp_json_encode([['keyword' => $focusKeyword, 'score' => 'good']]));
+    }
 }
 
 flush_rewrite_rules();

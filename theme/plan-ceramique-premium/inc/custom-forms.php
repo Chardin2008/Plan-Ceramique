@@ -80,14 +80,7 @@ function pcp_queue_custom_mail(array $payload): bool
 
 function pcp_send_custom_form_mail(array $payload): void
 {
-    wp_mail(
-        $payload['to'] ?? '',
-        $payload['subject'] ?? '',
-        $payload['message'] ?? '',
-        $payload['headers'] ?? [],
-        $payload['attachments'] ?? []
-    );
-
+    // Legacy AJAX submissions are intentionally discarded to stop duplicated cron emails.
     foreach ((array) ($payload['temporary_files'] ?? []) as $file) {
         if (is_string($file) && is_file($file)) {
             wp_delete_file($file);
@@ -95,6 +88,28 @@ function pcp_send_custom_form_mail(array $payload): void
     }
 }
 add_action('pcp_send_custom_form_mail', 'pcp_send_custom_form_mail');
+
+function pcp_clear_legacy_form_mail_crons(): void
+{
+    $crons = _get_cron_array();
+
+    if (!is_array($crons)) {
+        return;
+    }
+
+    foreach ($crons as $timestamp => $hooks) {
+        foreach (['pcp_send_async_mail', 'pcp_send_custom_form_mail'] as $hook) {
+            if (empty($hooks[$hook]) || !is_array($hooks[$hook])) {
+                continue;
+            }
+
+            foreach ($hooks[$hook] as $event) {
+                wp_unschedule_event((int) $timestamp, $hook, $event['args'] ?? []);
+            }
+        }
+    }
+}
+add_action('init', 'pcp_clear_legacy_form_mail_crons', 1);
 
 function pcp_fast_form_queue_file(): string
 {

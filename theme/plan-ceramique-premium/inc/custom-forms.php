@@ -108,6 +108,68 @@ function pcp_fast_form_queue_file(): string
     return trailingslashit($directory) . 'queue.jsonl';
 }
 
+function pcp_fast_form_sent_log_file(): string
+{
+    $queue = pcp_fast_form_queue_file();
+
+    return $queue ? dirname($queue) . '/sent.log' : '';
+}
+
+function pcp_fast_form_payload_id(array $payload): string
+{
+    $messageId = sanitize_key((string) ($payload['message_id'] ?? ''));
+
+    if ($messageId) {
+        return $messageId;
+    }
+
+    return hash(
+        'sha256',
+        implode('|', [
+            (string) ($payload['to'] ?? ''),
+            (string) ($payload['reply_to'] ?? ''),
+            (string) ($payload['subject'] ?? ''),
+            (string) ($payload['message'] ?? ''),
+            (string) ($payload['created_at'] ?? ''),
+        ])
+    );
+}
+
+function pcp_fast_form_already_sent(string $messageId): bool
+{
+    $log = pcp_fast_form_sent_log_file();
+
+    if (!$messageId || !$log || !is_file($log)) {
+        return false;
+    }
+
+    $sentIds = file($log, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    return is_array($sentIds) && in_array($messageId, $sentIds, true);
+}
+
+function pcp_fast_form_mark_sent(string $messageId): void
+{
+    $log = pcp_fast_form_sent_log_file();
+
+    if (!$messageId || !$log) {
+        return;
+    }
+
+    file_put_contents($log, $messageId . "\n", FILE_APPEND | LOCK_EX);
+}
+
+function pcp_fast_form_quarantine_legacy_payload(string $line): void
+{
+    $queue = pcp_fast_form_queue_file();
+
+    if (!$queue) {
+        return;
+    }
+
+    file_put_contents(dirname($queue) . '/legacy-quarantine.jsonl', $line . "\n", FILE_APPEND | LOCK_EX);
+}
+
 function pcp_process_fast_form_queue(): void
 {
     $queue = pcp_fast_form_queue_file();
@@ -116,6 +178,7 @@ function pcp_process_fast_form_queue(): void
         return;
     }
 
+    $processing = dirname($queue) . '/processing-' . time() . '-' . wp_generate_uuid4() . '.jsonl';
     $handle = fopen($queue, 'c+');
 
     if (!$handle) {
@@ -129,10 +192,27 @@ function pcp_process_fast_form_queue(): void
     flock($handle, LOCK_UN);
     fclose($handle);
 
+    if (trim((string) $contents) === '') {
+        return;
+    }
+
+    file_put_contents($processing, $contents, LOCK_EX);
+
     foreach (array_filter(explode("\n", (string) $contents)) as $line) {
         $payload = json_decode($line, true);
 
         if (!is_array($payload)) {
+            continue;
+        }
+
+        if (empty($payload['message_id'])) {
+            pcp_fast_form_quarantine_legacy_payload($line);
+            continue;
+        }
+
+        $messageId = pcp_fast_form_payload_id($payload);
+
+        if (pcp_fast_form_already_sent($messageId)) {
             continue;
         }
 
@@ -144,7 +224,7 @@ function pcp_process_fast_form_queue(): void
             $headers[] = 'Reply-To: ' . $replyTo;
         }
 
-        wp_mail(
+        $sent = wp_mail(
             sanitize_email((string) ($payload['to'] ?? pcp_form_recipient())),
             sanitize_text_field((string) ($payload['subject'] ?? 'Nouveau message')),
             (string) ($payload['message'] ?? ''),
@@ -152,11 +232,19 @@ function pcp_process_fast_form_queue(): void
             $attachments
         );
 
+        if ($sent) {
+            pcp_fast_form_mark_sent($messageId);
+        }
+
         foreach ($attachments as $file) {
             if (is_file($file)) {
                 wp_delete_file($file);
             }
         }
+    }
+
+    if (is_file($processing)) {
+        wp_delete_file($processing);
     }
 }
 add_action('pcp_process_fast_form_queue', 'pcp_process_fast_form_queue');

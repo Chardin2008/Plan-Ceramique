@@ -128,6 +128,7 @@ if ($type === 'quote') {
 }
 
 $payload = [
+    'message_id' => bin2hex(random_bytes(16)),
     'to' => 'hello@mpc.contact',
     'reply_to' => $email,
     'subject' => $subject,

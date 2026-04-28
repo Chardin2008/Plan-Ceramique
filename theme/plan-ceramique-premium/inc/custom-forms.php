@@ -266,6 +266,10 @@ add_action('pcp_process_fast_form_queue', 'pcp_process_fast_form_queue');
 
 function pcp_schedule_fast_form_queue(): void
 {
+    if (function_exists('pcp_mail_brake_enabled') && pcp_mail_brake_enabled()) {
+        return;
+    }
+
     if (!wp_next_scheduled('pcp_process_fast_form_queue')) {
         wp_schedule_event(time(), 'pcp_every_minute', 'pcp_process_fast_form_queue');
     }

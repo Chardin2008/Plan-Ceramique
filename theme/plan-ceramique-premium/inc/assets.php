@@ -37,7 +37,6 @@ function pcp_enqueue_assets(): void
         'pcpForms',
         [
             'ajaxUrl' => admin_url('admin-ajax.php'),
-            'submitUrl' => get_template_directory_uri() . '/inc/fast-form-endpoint.php',
             'nonce' => wp_create_nonce('pcp_submit_form'),
         ]
     );

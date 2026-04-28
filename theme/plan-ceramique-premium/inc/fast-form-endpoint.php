@@ -81,6 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     pcp_fast_json(false, 'Methode non autorisee.', 405);
 }
 
+pcp_fast_json(false, 'Le formulaire a ete mis a jour. Rechargez la page puis reessayez.', 410);
+
 if (!empty($_POST['website'])) {
     pcp_fast_json(true, 'Merci, votre demande a bien ete envoyee.');
 }
@@ -129,7 +131,7 @@ if ($type === 'quote') {
 
 $payload = [
     'message_id' => bin2hex(random_bytes(16)),
-    'to' => 'hello@mpc.contact',
+    'to' => 'chardinpoutcheu@gmail.com',
     'reply_to' => $email,
     'subject' => $subject,
     'message' => implode("\n", $lines),

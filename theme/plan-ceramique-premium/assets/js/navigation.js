@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   window.addEventListener('resize', () => {
-    if (window.innerWidth >= 1024) {
+    if (window.innerWidth >= 1180) {
       closeMenu();
     }
   });

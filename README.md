@@ -10,6 +10,29 @@ docker compose up -d db wordpress
 docker compose --profile tools run --rm wpcli
 ```
 
+## Emails en local
+
+En local, les formulaires utilisent Mailpit comme faux serveur SMTP.
+
+- Interface emails: http://localhost:8026
+- SMTP interne Docker: `mailpit:1025`
+- Les emails sont captures localement et ne partent pas sur Internet.
+
+## Emails en production
+
+Pour livrer le site a une societe, remplacer les variables SMTP dans l'environnement de production par les identifiants fournis par l'hebergeur ou par un service mail transactionnel.
+
+- `SMTP_ENABLED=1`
+- `SMTP_FROM_EMAIL=contact@domaine-client.fr`
+- `SMTP_HOST=serveur-smtp-client`
+- `SMTP_PORT=587`
+- `SMTP_ENCRYPTION=tls`
+- `SMTP_AUTH=1`
+- `SMTP_USERNAME=utilisateur-smtp`
+- `SMTP_PASSWORD=mot-de-passe-smtp`
+
+Ne jamais envoyer les vrais mots de passe SMTP sur GitHub.
+
 ## Accès local
 
 - Site: http://localhost:8081

@@ -625,7 +625,7 @@ $contactPage .= pcp_group(
 $contactPage .= pcp_group(
     pcp_heading('Formulaire de contact') .
     pcp_paragraph('Expliquez votre besoin et nous pourrons vous rediriger vers la bonne reponse ou vers une etude plus complete.') .
-    ($contactFormId ? pcp_panel_shortcode('[contact-form-7 id="' . $contactFormId . '" title="Formulaire de contact"]') : ''),
+    pcp_panel_shortcode('[pcp_contact_form type="contact"]'),
     'pcp-section'
 );
 
@@ -663,7 +663,7 @@ $quotePage .= pcp_group(
 $quotePage .= pcp_group(
     pcp_heading('Formulaire de demande de devis') .
     pcp_paragraph('Remplissez les informations essentielles puis joignez un plan ou une photo si vous en disposez deja.') .
-    ($quoteFormId ? pcp_panel_shortcode('[contact-form-7 id="' . $quoteFormId . '" title="Formulaire de demande de devis"]') : ''),
+    pcp_panel_shortcode('[pcp_contact_form type="quote"]'),
     'pcp-section'
 );
 

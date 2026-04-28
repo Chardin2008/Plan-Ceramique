@@ -278,9 +278,9 @@ function pcp_upsert_cf7_form(string $slug, string $title, string $formMarkup, ar
     return $postId;
 }
 
-function pcp_quote_shortcode(int $formId, string $title): string
+function pcp_form_shortcode(string $type): string
 {
-    return '<!-- wp:shortcode -->[contact-form-7 id="' . (int) $formId . '" title="' . esc_attr($title) . '"]<!-- /wp:shortcode -->';
+    return '<!-- wp:shortcode -->[pcp_contact_form type="' . esc_attr($type) . '"]<!-- /wp:shortcode -->';
 }
 
 $visibleEmail = getenv('VISIBLE_CONTACT_EMAIL') ?: 'contact@plan-travail-ceramique.fr';
@@ -721,7 +721,7 @@ $contactContent = pcp_group(
 pcp_group(
     pcp_heading('Formulaire de contact') .
     pcp_paragraph('Décrivez votre besoin, même brièvement. Nous pourrons ensuite vous orienter vers la bonne collection, le bon matériau ou une demande de devis plus complète.') .
-    pcp_quote_shortcode($contactFormId, 'Formulaire de contact'),
+    pcp_form_shortcode('contact'),
     'pcp-section pcp-section--soft'
 );
 
@@ -737,7 +737,7 @@ $quotePageContent = pcp_group(
 pcp_group(
     pcp_heading('Formulaire de demande de devis') .
     pcp_paragraph('Le formulaire reste volontairement clair et rassurant pour éviter la surcharge, tout en collectant l’essentiel pour un chiffrage utile.') .
-    pcp_quote_shortcode($quoteFormId, 'Formulaire de demande de devis'),
+    pcp_form_shortcode('quote'),
     'pcp-section pcp-section--soft'
 );
 

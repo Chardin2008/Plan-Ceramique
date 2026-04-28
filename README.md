@@ -33,7 +33,7 @@ Pour livrer le site a une societe, remplacer les variables SMTP dans l'environne
 
 Ne jamais envoyer les vrais mots de passe SMTP sur GitHub.
 
-Le theme met les emails Contact Form 7 en file d'attente pour eviter que le visiteur attende le serveur SMTP. En production, prevoir un cron serveur toutes les minutes pour executer les taches WordPress:
+Le theme utilise un endpoint rapide pour les formulaires Contact et Devis. Le visiteur recoit une reponse immediate, puis le site place l'email dans une file locale avant envoi SMTP par cron. En production, prevoir un cron serveur toutes les minutes pour executer les taches WordPress:
 
 ```bash
 * * * * * curl -s https://domaine-client.fr/wp-cron.php?doing_wp_cron >/dev/null 2>&1

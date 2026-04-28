@@ -23,5 +23,23 @@ function pcp_enqueue_assets(): void
         pcp_theme_version(),
         true
     );
+
+    wp_enqueue_script(
+        'pcp-forms',
+        get_template_directory_uri() . '/assets/js/forms.js',
+        [],
+        pcp_theme_version(),
+        true
+    );
+
+    wp_localize_script(
+        'pcp-forms',
+        'pcpForms',
+        [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'submitUrl' => get_template_directory_uri() . '/inc/fast-form-endpoint.php',
+            'nonce' => wp_create_nonce('pcp_submit_form'),
+        ]
+    );
 }
 add_action('wp_enqueue_scripts', 'pcp_enqueue_assets');

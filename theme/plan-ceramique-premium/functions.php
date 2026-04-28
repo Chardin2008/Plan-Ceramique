@@ -4,6 +4,7 @@ require_once get_template_directory() . '/inc/setup.php';
 require_once get_template_directory() . '/inc/assets.php';
 require_once get_template_directory() . '/inc/settings.php';
 require_once get_template_directory() . '/inc/async-cf7-mail.php';
+require_once get_template_directory() . '/inc/custom-forms.php';
 
 function pcp_theme_version(): string
 {

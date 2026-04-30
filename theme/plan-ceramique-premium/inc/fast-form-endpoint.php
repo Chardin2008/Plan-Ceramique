@@ -36,7 +36,22 @@ function pcp_fast_dir(string $leaf): string
         mkdir($directory, 0755, true);
     }
 
+    $htaccess = $directory . '/.htaccess';
+    if (!is_file($htaccess)) {
+        file_put_contents($htaccess, "Require all denied\n", LOCK_EX);
+    }
+
+    $index = $directory . '/index.php';
+    if (!is_file($index)) {
+        file_put_contents($index, "<?php\n// Silence is golden.\n", LOCK_EX);
+    }
+
     return $directory;
+}
+
+function pcp_fast_direct_file(string $queueId): string
+{
+    return pcp_fast_dir('pcp-fast-form-direct') . '/' . preg_replace('/[^a-zA-Z0-9_-]/', '', $queueId) . '.json';
 }
 
 function pcp_fast_rate_limit(): void
@@ -81,8 +96,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     pcp_fast_json(false, 'Methode non autorisee.', 405);
 }
 
-pcp_fast_json(false, 'Le formulaire a ete mis a jour. Rechargez la page puis reessayez.', 410);
-
 if (!empty($_POST['website'])) {
     pcp_fast_json(true, 'Merci, votre demande a bien ete envoyee.');
 }
@@ -99,7 +112,7 @@ if (!$email || $message === '') {
 
 if ($type === 'quote') {
     $attachment = pcp_fast_attachment('project_file');
-    $subject = '[Plan Ceramique Premium] Nouvelle demande de devis';
+    $subject = '[Plan Ceramique Studio] Nouvelle demande de devis';
     $lines = [
         'Type: Demande de devis',
         'Nom: ' . pcp_fast_field('last_name'),
@@ -109,6 +122,7 @@ if ($type === 'quote') {
         'Ville: ' . pcp_fast_field('city'),
         'Type de projet: ' . pcp_fast_field('project_type'),
         'Materiau souhaite: ' . pcp_fast_field('desired_material'),
+        'Budget approximatif: ' . pcp_fast_field('budget'),
         'Dimensions: ' . pcp_fast_field('project_dimensions'),
         '',
         'Message:',
@@ -116,7 +130,7 @@ if ($type === 'quote') {
     ];
     $attachments = $attachment ? [$attachment] : [];
 } else {
-    $subject = '[Plan Ceramique Premium] Nouveau message de contact';
+    $subject = '[Plan Ceramique Studio] Nouveau message de contact';
     $lines = [
         'Type: Contact',
         'Nom: ' . pcp_fast_field('name'),
@@ -131,7 +145,7 @@ if ($type === 'quote') {
 
 $payload = [
     'message_id' => bin2hex(random_bytes(16)),
-    'to' => 'chardinpoutcheu@gmail.com',
+    'to' => getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com',
     'reply_to' => $email,
     'subject' => $subject,
     'message' => implode("\n", $lines),
@@ -139,16 +153,24 @@ $payload = [
     'created_at' => date(DATE_ATOM),
 ];
 
-$queue = pcp_fast_dir('pcp-fast-form-queue') . '/queue.jsonl';
-$handle = fopen($queue, 'ab');
+$queueId = bin2hex(random_bytes(16));
+$queueToken = bin2hex(random_bytes(16));
+$payload['queue_token_hash'] = hash('sha256', $queueToken);
 
-if (!$handle) {
+if (!file_put_contents(pcp_fast_direct_file($queueId), json_encode($payload, JSON_UNESCAPED_SLASHES), LOCK_EX)) {
     pcp_fast_json(false, 'Le message n a pas pu etre prepare. Merci de reessayer.', 500);
 }
 
-flock($handle, LOCK_EX);
-fwrite($handle, json_encode($payload, JSON_UNESCAPED_SLASHES) . "\n");
-flock($handle, LOCK_UN);
-fclose($handle);
-
-pcp_fast_json(true, 'Merci, votre demande a bien ete envoyee.');
+http_response_code(200);
+echo json_encode(
+    [
+        'success' => true,
+        'data' => [
+            'message' => 'Merci, votre demande a bien ete envoyee.',
+            'queueId' => $queueId,
+            'queueToken' => $queueToken,
+        ],
+    ],
+    JSON_UNESCAPED_SLASHES
+);
+exit;

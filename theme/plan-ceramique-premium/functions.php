@@ -3,6 +3,7 @@
 require_once get_template_directory() . '/inc/setup.php';
 require_once get_template_directory() . '/inc/assets.php';
 require_once get_template_directory() . '/inc/settings.php';
+require_once get_template_directory() . '/inc/content-types.php';
 require_once get_template_directory() . '/inc/mail-brake.php';
 require_once get_template_directory() . '/inc/custom-forms.php';
 
@@ -25,6 +26,29 @@ function pcp_reading_time(int $post_id = 0): string
     $minutes = max(1, (int) ceil($wordCount / 180));
 
     return sprintf(_n('%d min de lecture', '%d min de lecture', $minutes, 'plan-ceramique-premium'), $minutes);
+}
+
+function pcp_post_topic_data(?WP_Post $post = null): array
+{
+    $post = $post ?: get_post();
+    $slug = $post ? (string) $post->post_name : '';
+
+    $topics = [
+        'livraison-pose' => ['label' => 'Pose', 'icon' => 'P'],
+        'ilot' => ['label' => 'Îlot', 'icon' => 'I'],
+        'finition' => ['label' => 'Finition', 'icon' => 'F'],
+        'entretien' => ['label' => 'Entretien', 'icon' => 'E'],
+        'mesures' => ['label' => 'Mesures', 'icon' => 'M'],
+        'quartz' => ['label' => 'Matière', 'icon' => 'C'],
+    ];
+
+    foreach ($topics as $needle => $topic) {
+        if (str_contains($slug, $needle)) {
+            return $topic;
+        }
+    }
+
+    return ['label' => 'Conseil', 'icon' => 'C'];
 }
 
 function pcp_page_hero_data(?WP_Post $post = null): array
@@ -102,4 +126,32 @@ function pcp_page_hero_data(?WP_Post $post = null): array
         'image' => $default['image'],
         'image_alt' => $default['image_alt'],
     ];
+}
+
+function pcp_asset_img(string $file): string
+{
+    return get_template_directory_uri() . '/assets/img/' . ltrim($file, '/');
+}
+
+function pcp_post_image_url(int $post_id, string $fallback = 'blog-material-choice.jpg'): string
+{
+    return get_the_post_thumbnail_url($post_id, 'large') ?: pcp_asset_img($fallback);
+}
+
+function pcp_post_meta(int $post_id, string $key, string $fallback = ''): string
+{
+    $value = get_post_meta($post_id, $key, true);
+
+    return is_string($value) && $value !== '' ? $value : $fallback;
+}
+
+function pcp_excerpt_text(?WP_Post $post, int $words = 22): string
+{
+    if (!$post) {
+        return '';
+    }
+
+    $text = has_excerpt($post) ? get_the_excerpt($post) : wp_strip_all_tags($post->post_content);
+
+    return wp_trim_words($text, $words);
 }

@@ -1,0 +1,25 @@
+{
+  "name": "Plan Céramique Studio",
+  "short_name": "Céramique Studio",
+  "description": "Plans de travail en céramique premium pour cuisines, îlots, salles de bain et projets architecturaux.",
+  "icons": [
+    {
+      "src": "favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "favicon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#FBF8F2",
+  "background_color": "#FBF8F2",
+  "display": "standalone"
+}

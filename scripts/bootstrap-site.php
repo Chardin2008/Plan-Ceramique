@@ -183,6 +183,37 @@ function pcp_card_column(string $eyebrow, string $title, string $body, string $e
     ];
 }
 
+function pcp_article_content(array $sections, array $takeaways, string $ctaText, string $ctaUrl): string
+{
+    $content = '';
+
+    foreach ($sections as $section) {
+        $inner = pcp_heading($section['title']);
+
+        foreach ($section['paragraphs'] as $paragraph) {
+            $inner .= pcp_paragraph($paragraph);
+        }
+
+        $content .= pcp_group($inner, 'pcp-article-section');
+    }
+
+    $content .= pcp_group(
+        pcp_heading('À retenir') .
+        pcp_list($takeaways),
+        'pcp-article-section pcp-article-takeaways'
+    );
+
+    $content .= pcp_group(
+        pcp_heading('Passer au projet concret') .
+        pcp_paragraph('Si ces repères correspondent à votre cuisine, la suite logique consiste à rassembler vos dimensions, vos photos et vos préférences de finition. Nous pourrons ensuite transformer ces informations en demande de devis plus précise pour un plan de travail en céramique sur mesure.') .
+        pcp_paragraph('Cette étape permet aussi de vérifier la cohérence entre le rendu souhaité et les contraintes réelles : accès de livraison, configuration des meubles, découpes techniques, choix des chants et niveau de finition attendu. Plus ces éléments sont clairs au départ, plus l’échange devient fluide et plus le projet peut avancer avec méthode.') .
+        pcp_buttons([['label' => $ctaText, 'url' => $ctaUrl]]),
+        'pcp-article-section pcp-article-cta'
+    );
+
+    return $content;
+}
+
 function pcp_upsert_post(array $args): int
 {
     $existing = get_page_by_path($args['post_name'], OBJECT, $args['post_type']);
@@ -197,14 +228,76 @@ function pcp_upsert_post(array $args): int
     return (int) wp_insert_post($args);
 }
 
-function pcp_set_yoast_meta(int $postId, string $title, string $description, string $focusKeyword = ''): void
+function pcp_set_yoast_meta(int $postId, string $title, string $description, string $focusKeyword = '', string $socialImage = ''): void
 {
+    $defaultSocialImage = content_url('themes/plan-ceramique-premium/assets/img/og-plan-ceramique.jpg');
+    $socialImage = $socialImage ?: $defaultSocialImage;
+
     update_post_meta($postId, '_yoast_wpseo_title', $title);
     update_post_meta($postId, '_yoast_wpseo_metadesc', $description);
+    update_post_meta($postId, '_yoast_wpseo_opengraph-title', $title);
+    update_post_meta($postId, '_yoast_wpseo_opengraph-description', $description);
+    update_post_meta($postId, '_yoast_wpseo_opengraph-image', $socialImage);
+    update_post_meta($postId, '_yoast_wpseo_twitter-title', $title);
+    update_post_meta($postId, '_yoast_wpseo_twitter-description', $description);
+    update_post_meta($postId, '_yoast_wpseo_twitter-image', $socialImage);
 
     if ($focusKeyword) {
         update_post_meta($postId, '_yoast_wpseo_focuskw', $focusKeyword);
     }
+}
+
+function pcp_configure_yoast_defaults(): void
+{
+    $wpseo = get_option('wpseo', []);
+    $wpseo = is_array($wpseo) ? $wpseo : [];
+    update_option(
+        'wpseo',
+        array_merge(
+            $wpseo,
+            [
+                'company_or_person' => 'company',
+                'company_name' => 'Plan Céramique Studio',
+                'website_name' => 'Plan Céramique Studio',
+                'alternate_website_name' => 'Plan Céramique',
+                'enable_xml_sitemap' => true,
+                'opengraph' => true,
+                'twitter' => true,
+            ]
+        )
+    );
+
+    $wpseoTitles = get_option('wpseo_titles', []);
+    $wpseoTitles = is_array($wpseoTitles) ? $wpseoTitles : [];
+    update_option(
+        'wpseo_titles',
+        array_merge(
+            $wpseoTitles,
+            [
+                'separator' => 'sc-dash',
+                'title-home-wpseo' => 'Plan de travail en céramique sur mesure | Plan Céramique Studio',
+                'metadesc-home-wpseo' => 'Plan de travail en céramique sur mesure pour cuisine premium : conseil, fabrication, livraison et pose partout en France.',
+                'title-page' => '%%title%% | Plan Céramique Studio',
+                'metadesc-page' => '%%excerpt%%',
+                'title-post' => '%%title%% | Plan Céramique Studio',
+                'metadesc-post' => '%%excerpt%%',
+                'breadcrumbs-enable' => true,
+            ]
+        )
+    );
+
+    $wpseoSocial = get_option('wpseo_social', []);
+    $wpseoSocial = is_array($wpseoSocial) ? $wpseoSocial : [];
+    update_option(
+        'wpseo_social',
+        array_merge(
+            $wpseoSocial,
+            [
+                'og_default_image' => content_url('themes/plan-ceramique-premium/assets/img/og-plan-ceramique.jpg'),
+                'twitter_card_type' => 'summary_large_image',
+            ]
+        )
+    );
 }
 
 function pcp_default_cf7_meta(string $key, $fallback)
@@ -248,7 +341,7 @@ function pcp_upsert_cf7_form(string $slug, string $title, string $formMarkup, ar
         [
             'active' => 1,
             'subject' => '[' . get_bloginfo('name') . '] Nouveau message',
-            'sender' => 'Plan Céramique Premium <wordpress@localhost>',
+            'sender' => 'Plan Céramique Studio <wordpress@localhost>',
             'body' => '',
             'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com',
             'additional_headers' => '',
@@ -324,8 +417,8 @@ $contactFormMarkup = <<<'CF7'
 CF7;
 
 $contactMail = [
-    'subject' => '[Plan Céramique Premium] Nouveau message de contact',
-    'sender' => 'Plan Céramique Premium <wordpress@localhost>',
+    'subject' => '[Plan Céramique Studio] Nouveau message de contact',
+    'sender' => 'Plan Céramique Studio <wordpress@localhost>',
     'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com',
     'body' => "Nom : [your-name]\nEmail : [your-email]\nTéléphone : [your-phone]\n\nMessage :\n[your-message]",
     'additional_headers' => 'Reply-To: [your-email]',
@@ -377,8 +470,8 @@ $quoteFormMarkup = <<<'CF7'
 CF7;
 
 $quoteMail = [
-    'subject' => '[Plan Céramique Premium] Nouvelle demande de devis',
-    'sender' => 'Plan Céramique Premium <wordpress@localhost>',
+    'subject' => '[Plan Céramique Studio] Nouvelle demande de devis',
+    'sender' => 'Plan Céramique Studio <wordpress@localhost>',
     'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com',
     'body' => "Nom : [your-last-name]\nPrénom : [your-first-name]\nEmail : [your-email]\nTéléphone : [your-phone]\nVille : [your-city]\nType de projet : [project-type]\nMatériau souhaité : [desired-material]\nDimensions approximatives : [project-dimensions]\n\nMessage :\n[your-message]",
     'additional_headers' => 'Reply-To: [your-email]',
@@ -711,7 +804,21 @@ pcp_group(
     'pcp-section pcp-section--soft'
 );
 
-$blogContent = pcp_paragraph('Retrouvez ici des articles utiles sur la céramique, l’entretien, la prise de mesure, la fabrication et la pose des plans de travail sur mesure.');
+$blogContent = pcp_group(
+    pcp_paragraph('Guide projet', 'pcp-section-intro') .
+    pcp_heading('Des conseils courts pour avancer avec méthode') .
+    pcp_paragraph('Le blog rassemble les repères utiles avant de demander un devis : choisir la matière, préparer les mesures, comparer les finitions, anticiper un îlot, organiser la pose et garder une surface facile à vivre.') .
+    pcp_columns(
+        [
+            pcp_card_column('Matière', 'Choisir avec recul', 'Comparer la céramique, les finitions et les usages réels de la cuisine.'),
+            pcp_card_column('Mesures', 'Préparer le projet', 'Rassembler dimensions, photos, découpes et contraintes avant l’étude.'),
+            pcp_card_column('Pose', 'Anticiper la suite', 'Comprendre les accès, les supports, les validations et le jour de pose.'),
+        ],
+        'pcp-card-grid',
+        'wide'
+    ),
+    'pcp-section'
+);
 
 $contactContent = pcp_group(
     pcp_columns(
@@ -762,7 +869,7 @@ $pages = [
         'slug' => 'nos-services',
         'excerpt' => 'Conseil, prise de mesure, fabrication, livraison et pose de plans de travail en céramique.',
         'content' => $servicesContent,
-        'seo_title' => 'Nos services de plan de travail en céramique | Plan Céramique Premium',
+        'seo_title' => 'Nos services de plan de travail en céramique | Plan Céramique Studio',
         'seo_description' => 'Découvrez nos services pour un plan de travail en céramique sur mesure : conseil, fabrication, livraison et pose.',
     ],
     [
@@ -770,7 +877,7 @@ $pages = [
         'slug' => 'materiaux',
         'excerpt' => 'Comparer les matériaux céramiques pour une cuisine sur mesure durable et facile à entretenir.',
         'content' => $materialsContent,
-        'seo_title' => 'Matériaux céramiques pour cuisine sur mesure | Plan Céramique Premium',
+        'seo_title' => 'Matériaux céramiques pour cuisine sur mesure | Plan Céramique Studio',
         'seo_description' => 'Choisissez le bon matériau céramique pour votre plan de travail : résistance, entretien et finitions.',
     ],
     [
@@ -778,7 +885,7 @@ $pages = [
         'slug' => 'collections',
         'excerpt' => 'Explorez les couleurs et finitions céramiques adaptées à votre cuisine.',
         'content' => $collectionsContent,
-        'seo_title' => 'Collections et finitions céramiques | Plan Céramique Premium',
+        'seo_title' => 'Collections et finitions céramiques | Plan Céramique Studio',
         'seo_description' => 'Découvrez les collections de couleurs et finitions pour un plan de travail en céramique sur mesure.',
     ],
     [
@@ -786,7 +893,7 @@ $pages = [
         'slug' => 'realisations',
         'excerpt' => 'Exemples de cuisines terminées avec plan de travail en céramique et finitions soignées.',
         'content' => $projectsContent,
-        'seo_title' => 'Réalisations de cuisines en céramique | Plan Céramique Premium',
+        'seo_title' => 'Réalisations de cuisines en céramique | Plan Céramique Studio',
         'seo_description' => 'Parcourez nos réalisations de cuisines avec plan de travail en céramique sur mesure.',
     ],
     [
@@ -794,7 +901,7 @@ $pages = [
         'slug' => 'blog',
         'excerpt' => 'Articles utiles sur la céramique, l’entretien, la prise de mesure et la pose.',
         'content' => $blogContent,
-        'seo_title' => 'Blog plan de travail en céramique | Plan Céramique Premium',
+        'seo_title' => 'Blog plan de travail en céramique | Plan Céramique Studio',
         'seo_description' => 'Conseils pratiques sur la céramique, l’entretien, la fabrication et la pose de plans de travail.',
     ],
     [
@@ -802,20 +909,22 @@ $pages = [
         'slug' => 'contact',
         'excerpt' => 'Contactez-nous pour parler de votre projet de plan de travail en céramique.',
         'content' => $contactContent,
-        'seo_title' => 'Contact plan de travail céramique | Plan Céramique Premium',
-        'seo_description' => 'Contactez Plan Céramique Premium pour votre projet de cuisine sur mesure en céramique.',
+        'seo_title' => 'Contact plan de travail céramique | Plan Céramique Studio',
+        'seo_description' => 'Contactez Plan Céramique Studio pour votre projet de cuisine sur mesure en céramique.',
     ],
     [
         'title' => 'Demander un devis',
         'slug' => 'demander-un-devis',
         'excerpt' => 'Déposez votre demande de devis pour un plan de travail en céramique sur mesure.',
         'content' => $quotePageContent,
-        'seo_title' => 'Demander un devis plan de travail céramique | Plan Céramique Premium',
+        'seo_title' => 'Demander un devis plan de travail céramique | Plan Céramique Studio',
         'seo_description' => 'Envoyez votre demande de devis pour un plan de travail en céramique avec dimensions, ville et fichiers.',
     ],
 ];
 
 $pageIds = [];
+
+pcp_configure_yoast_defaults();
 
 foreach ($pages as $page) {
     $pageId = pcp_upsert_post(
@@ -839,7 +948,7 @@ update_option('page_for_posts', $pageIds['blog']);
 
 pcp_set_yoast_meta(
     $homePageId,
-    'Plan de travail en céramique sur mesure | Plan Céramique Premium',
+    'Plan de travail en céramique sur mesure | Plan Céramique Studio',
     'Plan de travail en céramique sur mesure pour cuisine premium : conseil, fabrication, livraison et pose partout en France.'
 );
 
@@ -919,7 +1028,7 @@ $posts = [
                 pcp_list(['Fréquence de cuisson et exposition à la chaleur.', 'Besoin de facilité d’entretien au quotidien.', 'Recherche d’une finition minérale, marbre ou pierre.', 'Importance des découpes et de la pose sur mesure.']),
                 'pcp-section pcp-section--soft'
             ),
-        'seo_title' => 'Céramique ou quartz pour un plan de travail ? | Plan Céramique Premium',
+        'seo_title' => 'Céramique ou quartz pour un plan de travail ? | Plan Céramique Studio',
         'seo_description' => 'Comparez la céramique au quartz pour choisir un plan de travail adapté à votre cuisine sur mesure.',
     ],
     [
@@ -937,7 +1046,7 @@ $posts = [
                 pcp_paragraph('Si vous souhaitez être guidé avant de lancer la fabrication, la page services explique comment nous cadrons cette étape avec précision.'),
                 'pcp-section pcp-section--soft'
             ),
-        'seo_title' => 'Prendre les mesures d’un plan de travail céramique | Plan Céramique Premium',
+        'seo_title' => 'Prendre les mesures d’un plan de travail céramique | Plan Céramique Studio',
         'seo_description' => 'Les bonnes pratiques pour relever les dimensions d’un plan de travail en céramique avant fabrication.',
     ],
     [
@@ -955,10 +1064,313 @@ $posts = [
                 pcp_paragraph('Pour choisir la bonne finition dès le départ, consultez aussi nos collections et matériaux avant votre demande de devis.'),
                 'pcp-section pcp-section--soft'
             ),
-        'seo_title' => 'Entretien d’un plan de travail en céramique | Plan Céramique Premium',
+        'seo_title' => 'Entretien d’un plan de travail en céramique | Plan Céramique Studio',
         'seo_description' => 'Découvrez comment entretenir facilement un plan de travail en céramique au quotidien.',
     ],
+    [
+        'title' => 'Quelle finition céramique choisir pour une cuisine lumineuse ?',
+        'slug' => 'finition-ceramique-cuisine-lumineuse',
+        'excerpt' => 'Marbre clair, pierre douce ou béton minéral : les bons repères pour choisir une finition adaptée à la lumière.',
+        'content' =>
+            pcp_group(
+                pcp_heading('Observer la lumière avant la matière') .
+                pcp_paragraph('Une finition céramique change selon l’exposition, la couleur des façades, le sol et la crédence. Une cuisine très lumineuse peut accueillir une surface claire pour agrandir visuellement l’espace, ou une finition plus profonde pour créer du contraste.') .
+                pcp_paragraph('Avant de choisir, il faut regarder la pièce dans son ensemble : lumière du matin, éclairage du soir, meubles mats ou brillants, teinte du sol et présence éventuelle d’un îlot central.') .
+                pcp_buttons([['label' => 'Explorer les collections', 'url' => pcp_route('/collections/')]]),
+                'pcp-section'
+            ) .
+            pcp_group(
+                pcp_heading('Les points à comparer') .
+                pcp_list(['Effet marbre clair pour une cuisine lumineuse et élégante.', 'Effet pierre pour une ambiance plus naturelle et douce.', 'Effet béton minéral pour un rendu calme et architectural.', 'Veinage plus discret si la surface comporte beaucoup de découpes.']),
+                'pcp-section pcp-section--soft'
+            ),
+        'seo_title' => 'Choisir une finition céramique pour cuisine lumineuse | Plan Céramique Studio',
+        'seo_description' => 'Conseils pour choisir une finition céramique adaptée à une cuisine lumineuse et à un projet sur mesure.',
+    ],
+    [
+        'title' => 'Plan de travail avec îlot central : les points à anticiper',
+        'slug' => 'plan-travail-ilot-central-ceramique',
+        'excerpt' => 'Dimensions, débords, circulation et découpes : les éléments à cadrer pour un îlot central en céramique.',
+        'content' =>
+            pcp_group(
+                pcp_heading('Un îlot central se voit sous tous les angles') .
+                pcp_paragraph('Dans une cuisine ouverte, l’îlot central devient souvent la pièce la plus visible. Le plan de travail doit donc être beau, mais aussi juste dans ses proportions, ses débords, ses chants et ses découpes.') .
+                pcp_paragraph('La céramique convient très bien à ce type de projet, à condition d’anticiper les usages : préparation, repas, cuisson, évier, prises ou simple zone de rassemblement.') .
+                pcp_buttons([['label' => 'Demander un devis', 'url' => pcp_route('/demander-un-devis/')]]),
+                'pcp-section'
+            ) .
+            pcp_group(
+                pcp_heading('Informations utiles') .
+                pcp_list(['Longueur, profondeur et hauteur de l’îlot.', 'Débords souhaités pour les assises.', 'Présence d’un évier, d’une plaque ou de prises.', 'Accès de livraison et contraintes de manutention.']),
+                'pcp-section pcp-section--soft'
+            ),
+        'seo_title' => 'Îlot central avec plan de travail céramique | Plan Céramique Studio',
+        'seo_description' => 'Les points à anticiper pour un îlot central avec plan de travail en céramique sur mesure.',
+    ],
+    [
+        'title' => 'Livraison et pose : préparer un plan de travail en céramique',
+        'slug' => 'livraison-pose-plan-travail-ceramique',
+        'excerpt' => 'Les bonnes préparations avant la livraison et la pose pour sécuriser un projet de plan de travail en céramique.',
+        'content' =>
+            pcp_group(
+                pcp_heading('Une pose réussie commence avant le jour J') .
+                pcp_paragraph('La livraison et la pose demandent une cuisine prête, des meubles stables et des informations claires. Plus les éléments sont vérifiés avant l’intervention, plus le rendu final peut rester propre et précis.') .
+                pcp_paragraph('Il faut anticiper les accès, les étages, les couloirs, la protection de la pièce et la présence d’une personne capable de valider les derniers détails sur place.') .
+                pcp_buttons([['label' => 'Voir nos services', 'url' => pcp_route('/nos-services/')]]),
+                'pcp-section'
+            ) .
+            pcp_group(
+                pcp_heading('Checklist avant intervention') .
+                pcp_list(['Meubles posés, fixés et de niveau.', 'Accès dégagé pour la livraison.', 'Emplacements évier et plaque confirmés.', 'Dernières validations disponibles le jour de la pose.']),
+                'pcp-section pcp-section--soft'
+            ),
+        'seo_title' => 'Livraison et pose plan de travail céramique | Plan Céramique Studio',
+        'seo_description' => 'Comment préparer la livraison et la pose d’un plan de travail en céramique sur mesure.',
+    ],
 ];
+
+$longPostContent = [
+    'plan-de-travail-ceramique-ou-quartz' => pcp_article_content(
+        [
+            [
+                'title' => 'Partir de la vraie vie dans la cuisine',
+                'paragraphs' => [
+                    'Le choix entre un plan de travail en céramique et une autre surface ne doit pas se limiter à une comparaison de noms. Une cuisine est un espace utilisé tous les jours, parfois rapidement, parfois avec plusieurs personnes autour du même plan. Il faut donc regarder la chaleur, les projections, les découpes, les taches, les plats posés à la sortie du four, mais aussi la manière dont la surface vieillit visuellement.',
+                    'La céramique répond très bien aux projets où l’on cherche une surface minérale, stable et simple à entretenir. Elle garde une présence élégante sans demander une attention permanente. Le quartz peut rester intéressant dans certaines cuisines, mais il impose de bien vérifier les contraintes de chaleur et les limites d’usage. Pour un projet premium, le bon choix est celui qui correspond à votre rythme réel, pas seulement à une photo d’inspiration.',
+                ],
+            ],
+            [
+                'title' => 'Comparer la résistance, l’entretien et le rendu',
+                'paragraphs' => [
+                    'La céramique se distingue par sa densité, sa résistance aux rayures du quotidien et sa très bonne tenue face aux usages intenses. Cela ne signifie pas qu’il faut traiter le plan de travail sans soin, mais que la matière rassure dans une cuisine active. Pour une famille, un îlot central ou une zone de préparation fréquente, cette stabilité apporte un vrai confort.',
+                    'L’entretien est aussi un critère important. Une surface facile à nettoyer permet de garder une cuisine nette sans multiplier les produits. Les finitions mates, satinées ou effet pierre doivent être choisies selon la lumière et les habitudes. Un rendu très clair agrandit l’espace, tandis qu’un décor plus marqué donne du caractère. Dans tous les cas, la cohérence avec les façades, le sol et la crédence reste essentielle.',
+                ],
+            ],
+            [
+                'title' => 'Penser fabrication et pose dès le départ',
+                'paragraphs' => [
+                    'Un plan de travail sur mesure ne se choisit pas comme un simple échantillon. Les dimensions, les découpes, l’évier, la plaque de cuisson, les chants visibles et les jonctions influencent le résultat final. La céramique demande une fabrication précise et une pose bien préparée. C’est justement ce niveau de méthode qui permet d’obtenir un rendu net et durable.',
+                    'Avant de décider, il faut donc réunir les informations principales : plan de la cuisine, photos, dimensions approximatives, style souhaité et contraintes d’accès. Ces éléments permettent de vérifier si la finition choisie reste adaptée à la configuration. Une grande surface avec peu de découpes ne se lit pas comme une cuisine très technique avec angles, retombées et nombreux raccords.',
+                ],
+            ],
+            [
+                'title' => 'Choisir avec une vision globale',
+                'paragraphs' => [
+                    'Le meilleur plan de travail est celui qui fait le lien entre esthétique, usage et faisabilité. La céramique convient particulièrement aux cuisines où l’on veut une sensation haut de gamme, une surface minérale et une grande simplicité au quotidien. Elle permet de travailler des effets marbre, pierre, béton ou plus contemporains sans perdre la logique pratique.',
+                    'Pour prendre une décision solide, comparez les matières à partir de votre projet réel. Regardez les contraintes, la lumière, les meubles, le budget, la pose et l’entretien. Ensuite seulement, choisissez la finition. Cette approche évite les décisions trop rapides et donne une cuisine plus cohérente, plus durable et plus agréable à vivre.',
+                ],
+            ],
+        ],
+        [
+            'La céramique est très adaptée aux cuisines actives et aux projets sur mesure.',
+            'Le choix doit tenir compte de la chaleur, de l’entretien, des découpes et de la lumière.',
+            'La pose et la fabrication doivent être anticipées avant de valider la finition.',
+        ],
+        'Voir les matériaux',
+        pcp_route('/materiaux/')
+    ),
+    'prendre-les-mesures-plan-de-travail-ceramique' => pcp_article_content(
+        [
+            [
+                'title' => 'Pourquoi les mesures comptent autant',
+                'paragraphs' => [
+                    'Prendre les mesures d’un plan de travail en céramique semble simple au départ, mais cette étape influence toute la suite du projet. Une longueur imprécise, un angle mal relevé ou une profondeur oubliée peuvent créer des ajustements compliqués au moment de la fabrication. La céramique étant une matière technique, la précision permet de préserver la qualité du rendu et d’éviter les surprises lors de la pose.',
+                    'Il ne s’agit pas seulement de noter une grande longueur mur à mur. Il faut comprendre comment les meubles sont positionnés, où se trouvent les murs, quelles parties restent visibles, quelles découpes sont nécessaires et comment le plan va s’intégrer dans la cuisine. Une bonne prise d’informations donne une base claire pour établir un devis plus juste et préparer une fabrication cohérente.',
+                ],
+            ],
+            [
+                'title' => 'Les dimensions à relever en priorité',
+                'paragraphs' => [
+                    'Commencez par relever les longueurs principales, les profondeurs, les retours éventuels et la présence d’un îlot central. Notez aussi les dimensions approximatives de l’évier, de la plaque de cuisson, des prises intégrées ou des zones à laisser libres. Même si un relevé technique peut être confirmé ensuite, ces premières informations aident à cadrer le projet et à comprendre son niveau de complexité.',
+                    'Il faut également penser aux chants visibles. Un plan contre un mur ne se lit pas de la même manière qu’un îlot central visible sur quatre côtés. L’épaisseur souhaitée, les retombées, les crédences et les jambages éventuels modifient la perception du plan. Plus ces éléments sont expliqués tôt, plus la réponse peut être précise.',
+                ],
+            ],
+            [
+                'title' => 'Photos, accès et contraintes techniques',
+                'paragraphs' => [
+                    'Les photos sont très utiles. Elles montrent les murs, les meubles, les angles, les arrivées d’eau, les appareils et les contraintes que les chiffres seuls ne racontent pas. Prenez des vues larges de la cuisine, puis quelques détails des zones importantes. Si l’ancien plan est encore en place, il peut servir de repère pour comprendre la configuration actuelle.',
+                    'Les accès doivent aussi être signalés. Un grand plan de travail ou une pièce pour îlot central demande de vérifier la livraison, les escaliers, l’ascenseur, les couloirs, les portes et la zone de déchargement. Ces informations ne concernent pas seulement la logistique : elles peuvent influencer la manière de découper, transporter et poser la céramique.',
+                ],
+            ],
+            [
+                'title' => 'Préparer une demande de devis claire',
+                'paragraphs' => [
+                    'Une demande claire n’a pas besoin d’être parfaite. Elle doit surtout permettre de comprendre le projet. Dimensions approximatives, photos, type de cuisine, finition souhaitée, emplacement de l’évier, présence d’un îlot et ville d’intervention forment déjà une très bonne base. À partir de là, il devient possible d’échanger sérieusement.',
+                    'Si une incertitude existe, indiquez-la simplement. Un mur pas tout à fait droit, une cuisine en rénovation, un meuble non posé ou une crédence à prévoir sont des informations importantes. Le but n’est pas de tout résoudre seul, mais de donner assez de matière pour que le projet avance dans le bon ordre.',
+                ],
+            ],
+        ],
+        [
+            'Les longueurs, profondeurs, découpes et chants visibles doivent être indiqués.',
+            'Les photos de la cuisine complètent les mesures et évitent les malentendus.',
+            'Les contraintes d’accès peuvent influencer la livraison et la pose.',
+        ],
+        'Demander un devis',
+        pcp_route('/demander-un-devis/')
+    ),
+    'entretien-plan-de-travail-ceramique' => pcp_article_content(
+        [
+            [
+                'title' => 'Une surface pensée pour le quotidien',
+                'paragraphs' => [
+                    'L’un des grands avantages de la céramique est sa facilité d’entretien. Dans une cuisine, le plan de travail reçoit des projections, des traces de doigts, de l’eau, des miettes, des plats chauds et parfois des taches grasses. Une surface simple à nettoyer change réellement le confort d’usage, surtout lorsque la cuisine est utilisée plusieurs fois par jour.',
+                    'La céramique permet de garder une sensation de propreté sans transformer l’entretien en contrainte. Un nettoyage régulier avec une éponge douce, de l’eau tiède et un produit adapté suffit dans la majorité des situations. Le plus important est de conserver de bons réflexes, sans utiliser d’accessoires trop agressifs qui pourraient abîmer les joints, les chants ou les finitions autour du plan.',
+                ],
+            ],
+            [
+                'title' => 'Les bons gestes après la préparation',
+                'paragraphs' => [
+                    'Après avoir cuisiné, il vaut mieux retirer rapidement les résidus alimentaires, les traces grasses et les liquides colorés. Même si la céramique est résistante, une routine simple évite les accumulations et garde le rendu plus net. Sur une finition claire ou très lumineuse, ce geste régulier permet de préserver la sensation premium de la cuisine.',
+                    'Il est préférable d’utiliser un chiffon microfibre ou une éponge non abrasive. Les produits trop puissants ne sont pas nécessaires au quotidien. Pour les zones autour de l’évier ou de la plaque, un passage plus attentif peut être utile, car ce sont souvent les parties les plus sollicitées. Les joints et les raccords doivent rester propres pour que l’ensemble garde une finition soignée.',
+                ],
+            ],
+            [
+                'title' => 'Adapter l’entretien à la finition choisie',
+                'paragraphs' => [
+                    'Toutes les finitions ne se lisent pas de la même manière. Un décor marbre clair montre davantage certaines traces, tandis qu’un effet pierre ou béton peut les rendre plus discrètes. Le choix de la finition doit donc tenir compte de l’esthétique, mais aussi de la façon dont vous vivez la cuisine. Une surface très élégante doit rester agréable au quotidien.',
+                    'La lumière joue aussi un rôle. Une cuisine très exposée peut révéler les traces en contre-jour. Une finition satinée ou légèrement texturée peut alors être plus confortable visuellement. Ce type de détail mérite d’être évoqué avant de commander, car il influence la satisfaction une fois la cuisine terminée.',
+                ],
+            ],
+            [
+                'title' => 'Préserver la qualité dans le temps',
+                'paragraphs' => [
+                    'Un plan de travail bien entretenu conserve plus longtemps son aspect net. Cela passe par des gestes simples : nettoyer régulièrement, éviter les chocs inutiles sur les arêtes, utiliser une planche pour les découpes intenses et contrôler ponctuellement les zones sensibles. La céramique est résistante, mais la cuisine reste un espace vivant.',
+                    'Il faut aussi surveiller l’environnement du plan : silicone, crédence, évier, plaque et meubles. Une belle surface peut perdre de sa force si les éléments autour sont négligés. En gardant une routine claire, le plan de travail reste élégant, pratique et cohérent avec l’esprit premium du projet.',
+                ],
+            ],
+        ],
+        [
+            'La céramique s’entretient simplement avec des gestes réguliers.',
+            'Les accessoires doux suffisent dans la plupart des usages quotidiens.',
+            'La finition choisie influence la visibilité des traces et le confort visuel.',
+        ],
+        'Explorer les collections',
+        pcp_route('/collections/')
+    ),
+    'finition-ceramique-cuisine-lumineuse' => pcp_article_content(
+        [
+            [
+                'title' => 'Observer la lumière avant de choisir',
+                'paragraphs' => [
+                    'Dans une cuisine lumineuse, la finition du plan de travail prend beaucoup d’importance. La lumière naturelle révèle les veinages, les reflets, les contrastes et les petites variations de matière. Une finition choisie trop vite peut sembler parfaite sur un échantillon, puis devenir trop présente ou trop froide dans la pièce terminée.',
+                    'Avant de décider, observez la cuisine à différents moments de la journée. La lumière du matin, l’éclairage du soir, les façades mates ou brillantes et la couleur du sol modifient la perception de la céramique. Une surface claire peut agrandir l’espace, tandis qu’une finition plus profonde peut donner du relief et structurer une cuisine ouverte.',
+                ],
+            ],
+            [
+                'title' => 'Choisir entre douceur et contraste',
+                'paragraphs' => [
+                    'Un effet marbre clair fonctionne bien lorsque l’on veut une cuisine élégante, lumineuse et assez intemporelle. Il apporte de la profondeur sans alourdir l’ensemble, surtout si le veinage reste maîtrisé. À l’inverse, une finition plus contrastée peut devenir le point fort de la pièce, notamment sur un îlot central ou une cuisine aux façades sobres.',
+                    'L’effet pierre offre souvent un équilibre intéressant. Il garde une présence minérale, mais avec une lecture plus douce. L’effet béton convient aux cuisines contemporaines qui cherchent un rendu calme, architectural et moins décoratif. Le choix dépend donc autant de l’ambiance recherchée que de la manière dont la lumière frappe la surface.',
+                ],
+            ],
+            [
+                'title' => 'Penser aux meubles, au sol et à la crédence',
+                'paragraphs' => [
+                    'Le plan de travail ne doit pas être choisi seul. Il dialogue avec les meubles, les poignées, le sol, la crédence et parfois la table ou les éléments de séjour. Dans une cuisine ouverte, cette cohérence devient encore plus importante. Une finition très expressive peut être magnifique, mais elle doit avoir assez d’espace pour respirer.',
+                    'Si les façades sont déjà très marquées, il vaut mieux calmer le plan. Si la cuisine est très neutre, la céramique peut apporter le caractère qui manque. La crédence doit aussi être anticipée : assortie au plan, plus discrète ou volontairement contrastée. Ces décisions construisent l’équilibre final.',
+                ],
+            ],
+            [
+                'title' => 'Valider une direction avant la fabrication',
+                'paragraphs' => [
+                    'Une fois la direction visuelle choisie, il faut vérifier sa faisabilité sur la configuration réelle. Les grandes longueurs, les retours, les découpes et les chants visibles peuvent modifier la lecture du décor. Un veinage doit être pensé avec les jonctions et les zones visibles, surtout dans une cuisine premium.',
+                    'La bonne méthode consiste à partir d’une ambiance générale, puis à confirmer les détails techniques. Cette progression évite de choisir une finition séduisante mais difficile à harmoniser. Le résultat doit rester beau au premier regard et agréable à vivre tous les jours.',
+                ],
+            ],
+        ],
+        [
+            'La lumière naturelle change fortement la perception des finitions.',
+            'Une finition claire agrandit, une finition contrastée structure la cuisine.',
+            'Le plan doit rester cohérent avec les meubles, le sol et la crédence.',
+        ],
+        'Explorer les collections',
+        pcp_route('/collections/')
+    ),
+    'plan-travail-ilot-central-ceramique' => pcp_article_content(
+        [
+            [
+                'title' => 'Un élément central qui se voit partout',
+                'paragraphs' => [
+                    'L’îlot central attire naturellement le regard. Dans une cuisine ouverte, il devient à la fois une zone de préparation, un espace de repas, un lieu de passage et parfois le véritable centre de la pièce. Le plan de travail doit donc être pensé avec beaucoup de soin, car ses proportions, ses chants et ses finitions restent visibles sous plusieurs angles.',
+                    'La céramique convient très bien à ce type de projet grâce à son rendu minéral et sa résistance au quotidien. Mais l’îlot demande plus d’anticipation qu’un plan posé contre un mur. Les débords, les assises, les découpes et la circulation autour doivent être cohérents pour que l’ensemble soit pratique et élégant.',
+                ],
+            ],
+            [
+                'title' => 'Définir les usages avant les dimensions',
+                'paragraphs' => [
+                    'Avant de parler longueur et profondeur, il faut préciser l’usage de l’îlot. Servira-t-il principalement à préparer les repas, à recevoir, à manger rapidement, à intégrer une plaque ou un évier ? Chaque réponse modifie le plan. Une zone repas demande un débord confortable, tandis qu’un îlot technique impose des découpes et des arrivées adaptées.',
+                    'La circulation est tout aussi importante. Un bel îlot mal placé peut gêner les déplacements et rendre la cuisine moins agréable. Il faut garder assez d’espace autour pour ouvrir les meubles, passer à plusieurs et accéder aux appareils. La surface en céramique doit accompagner le geste, pas compliquer l’usage.',
+                ],
+            ],
+            [
+                'title' => 'Soigner les chants, les débords et les finitions',
+                'paragraphs' => [
+                    'Sur un îlot, les chants sont très visibles. Leur épaisseur, leur finition et leur continuité participent fortement au rendu premium. Une céramique effet marbre, pierre ou béton ne donnera pas la même impression selon la manière dont les bords sont traités. C’est un point à valider avant fabrication.',
+                    'Les débords doivent être pensés avec précision. Trop courts, ils rendent les assises inconfortables. Trop généreux, ils peuvent nécessiter des supports ou créer un déséquilibre visuel. La bonne solution dépend de la longueur de l’îlot, du nombre de places, de la structure du meuble et du style recherché.',
+                ],
+            ],
+            [
+                'title' => 'Préparer la livraison et la pose',
+                'paragraphs' => [
+                    'Un plan d’îlot peut être lourd, volumineux et délicat à manipuler. Il faut donc vérifier les accès : porte d’entrée, couloir, ascenseur, escalier, stationnement et espace de manœuvre dans la cuisine. Cette étape est indispensable pour éviter les complications le jour de la pose.',
+                    'La stabilité des meubles doit aussi être confirmée. Un îlot bien posé repose sur une base solide, de niveau et prête à recevoir la céramique. En préparant ces points tôt, le projet gagne en sécurité et le résultat final reste propre, stable et durable.',
+                ],
+            ],
+        ],
+        [
+            'L’îlot central doit être pensé selon les usages avant les dimensions.',
+            'Les chants et les débords influencent beaucoup le rendu final.',
+            'La livraison et la manutention doivent être vérifiées avant la pose.',
+        ],
+        'Demander un devis',
+        pcp_route('/demander-un-devis/')
+    ),
+    'livraison-pose-plan-travail-ceramique' => pcp_article_content(
+        [
+            [
+                'title' => 'Une pose réussie se prépare avant le jour J',
+                'paragraphs' => [
+                    'La livraison et la pose d’un plan de travail en céramique demandent une vraie préparation. La matière est résistante à l’usage, mais elle reste technique à transporter, à manipuler et à ajuster. Plus les informations sont claires avant l’intervention, plus le jour de pose peut se dérouler dans de bonnes conditions.',
+                    'Une cuisine prête, des meubles stables, des accès dégagés et des choix validés évitent les pertes de temps. Cela permet aussi de protéger le rendu final. La pose n’est pas seulement une étape de fin de chantier : c’est le moment où toutes les décisions prises auparavant se rejoignent.',
+                ],
+            ],
+            [
+                'title' => 'Vérifier les meubles et la configuration',
+                'paragraphs' => [
+                    'Les meubles doivent être posés, fixés et de niveau. Une surface en céramique ne peut pas compenser une base instable. Avant l’arrivée du plan, il faut donc contrôler les supports, les angles, les hauteurs et l’alignement général. Cette vérification protège la précision des joints, des chants et des découpes.',
+                    'Les emplacements de l’évier, de la plaque, des prises ou des accessoires doivent aussi être confirmés. Une modification tardive peut compliquer la fabrication ou imposer des ajustements. Le mieux est de valider ces points en amont avec des plans, des photos et des mesures cohérentes.',
+                ],
+            ],
+            [
+                'title' => 'Anticiper les accès de livraison',
+                'paragraphs' => [
+                    'La livraison doit être pensée comme une partie du projet. Un grand plan de travail peut nécessiter plusieurs personnes, un chemin dégagé et parfois une organisation particulière. Il faut vérifier les portes, les couloirs, les escaliers, l’ascenseur, le stationnement et la distance entre le point de déchargement et la cuisine.',
+                    'Les obstacles doivent être retirés avant l’arrivée de l’équipe. Protéger les sols, dégager les passages et prévoir une présence sur place aide à sécuriser l’intervention. Ces détails peuvent sembler secondaires, mais ils évitent beaucoup de tensions le jour de la pose.',
+                ],
+            ],
+            [
+                'title' => 'Garder une validation claire sur place',
+                'paragraphs' => [
+                    'Le jour de la pose, une personne capable de valider les détails doit être présente ou joignable. Même avec une bonne préparation, certaines décisions pratiques peuvent apparaître sur place : ordre de pose, contrôle visuel, ajustement autour d’un élément ou vérification d’un raccord.',
+                    'Une fois le plan posé, il faut prendre le temps de regarder l’ensemble : alignement, joints, chants, intégration de l’évier, propreté et cohérence visuelle. Cette validation finale permet de fermer le projet proprement et de profiter d’une cuisine prête à vivre.',
+                ],
+            ],
+        ],
+        [
+            'Les meubles doivent être stables, fixés et de niveau avant la pose.',
+            'Les accès de livraison doivent être contrôlés avant l’intervention.',
+            'Une validation sur place facilite les derniers ajustements.',
+        ],
+        'Voir nos services',
+        pcp_route('/nos-services/')
+    ),
+];
+
+foreach ($posts as $index => $postData) {
+    if (isset($longPostContent[$postData['slug']])) {
+        $posts[$index]['content'] = $longPostContent[$postData['slug']];
+    }
+}
 
 foreach ($posts as $postData) {
     $postId = pcp_upsert_post(
@@ -980,6 +1392,9 @@ $postFocusKeywords = [
     'plan-de-travail-ceramique-ou-quartz' => 'céramique ou quartz',
     'prendre-les-mesures-plan-de-travail-ceramique' => 'mesures plan de travail céramique',
     'entretien-plan-de-travail-ceramique' => 'entretien plan de travail céramique',
+    'finition-ceramique-cuisine-lumineuse' => 'finition ceramique cuisine',
+    'plan-travail-ilot-central-ceramique' => 'ilot central ceramique',
+    'livraison-pose-plan-travail-ceramique' => 'pose plan de travail ceramique',
 ];
 
 foreach ($postFocusKeywords as $slug => $focusKeyword) {

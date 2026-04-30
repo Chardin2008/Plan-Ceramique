@@ -1,4 +1,4 @@
-# Plan Céramique Premium
+# Plan Céramique Studio
 
 Base technique locale WordPress avec Docker, VS Code, Gutenberg natif et thème custom.
 

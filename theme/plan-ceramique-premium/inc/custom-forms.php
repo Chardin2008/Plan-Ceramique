@@ -9,11 +9,22 @@ function pcp_form_mail_sender(): string
 {
     $from = getenv('SMTP_FROM_EMAIL') ?: 'smtp@meilleur-plan-cuisine.fr';
 
-    return sprintf('Plan Ceramique Premium <%s>', sanitize_email($from));
+    return sprintf('Plan Ceramique Studio <%s>', sanitize_email($from));
+}
+
+function pcp_easy_wp_smtp_enabled(): bool
+{
+    $options = get_option('easy_wp_smtp', []);
+
+    return is_array($options) && ($options['mail']['mailer'] ?? '') === 'smtp';
 }
 
 function pcp_configure_smtp_mailer($phpmailer): void
 {
+    if (pcp_easy_wp_smtp_enabled()) {
+        return;
+    }
+
     $host = getenv('SMTP_HOST');
 
     if (!$host || getenv('SMTP_ENABLED') !== '1') {
@@ -31,7 +42,7 @@ function pcp_configure_smtp_mailer($phpmailer): void
     $phpmailer->SMTPSecure = $encryption === 'none' ? '' : $encryption;
 
     $from = sanitize_email(getenv('SMTP_FROM_EMAIL') ?: 'smtp@meilleur-plan-cuisine.fr');
-    $fromName = sanitize_text_field(getenv('SMTP_FROM_NAME') ?: 'Plan Ceramique Premium');
+    $fromName = sanitize_text_field(getenv('SMTP_FROM_NAME') ?: 'Plan Ceramique Studio');
 
     if ($from) {
         $phpmailer->setFrom($from, $fromName, false);
@@ -116,6 +127,222 @@ function pcp_send_form_mail_now(array $payload): bool
 
     return (bool) $sent;
 }
+
+function pcp_form_mail_queue_key(string $queueId): string
+{
+    return 'pcp_form_mail_' . sanitize_key($queueId);
+}
+
+function pcp_process_queued_form_mail(string $queueId): bool
+{
+    $queueId = sanitize_key($queueId);
+
+    if (!$queueId) {
+        return false;
+    }
+
+    $key = pcp_form_mail_queue_key($queueId);
+    $lockKey = $key . '_lock';
+    $payload = get_transient($key);
+
+    if (!is_array($payload) || get_transient($lockKey)) {
+        return false;
+    }
+
+    set_transient($lockKey, '1', 5 * MINUTE_IN_SECONDS);
+    $sent = pcp_send_form_mail_now($payload);
+
+    if ($sent) {
+        delete_transient($key);
+    }
+
+    delete_transient($lockKey);
+
+    return $sent;
+}
+
+function pcp_queue_form_mail(array $payload): array
+{
+    $queueId = wp_generate_uuid4();
+    $nonce = wp_create_nonce('pcp_process_form_mail_' . $queueId);
+
+    set_transient(pcp_form_mail_queue_key($queueId), $payload, HOUR_IN_SECONDS);
+
+    wp_schedule_single_event(
+        time() + 60,
+        'pcp_process_queued_form_mail_event',
+        [$queueId, $nonce]
+    );
+
+    return [
+        'queue_id' => $queueId,
+        'nonce' => $nonce,
+    ];
+}
+
+function pcp_process_queued_form_mail_request(): void
+{
+    $queueId = sanitize_key(wp_unslash($_POST['queue_id'] ?? ''));
+    $nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
+
+    if (!$queueId || !wp_verify_nonce($nonce, 'pcp_process_form_mail_' . $queueId)) {
+        wp_send_json_error(['message' => 'Demande invalide.'], 403);
+    }
+
+    $sent = pcp_process_queued_form_mail($queueId);
+
+    if (!$sent) {
+        wp_send_json_error(['message' => 'Aucun email en attente.'], 404);
+    }
+
+    wp_send_json_success(['message' => 'Email envoye.']);
+}
+add_action('wp_ajax_pcp_process_queued_form_mail', 'pcp_process_queued_form_mail_request');
+add_action('wp_ajax_nopriv_pcp_process_queued_form_mail', 'pcp_process_queued_form_mail_request');
+
+function pcp_fast_direct_form_file(string $queueId): string
+{
+    $upload = wp_upload_dir();
+    $directory = trailingslashit($upload['basedir']) . 'pcp-fast-form-direct';
+
+    if (wp_mkdir_p($directory)) {
+        pcp_protect_upload_queue_directory($directory);
+    }
+
+    return trailingslashit($directory) . sanitize_key($queueId) . '.json';
+}
+
+function pcp_protect_upload_queue_directory(string $directory): void
+{
+    if (!is_dir($directory)) {
+        return;
+    }
+
+    $htaccess = trailingslashit($directory) . '.htaccess';
+    if (!is_file($htaccess)) {
+        file_put_contents($htaccess, "Require all denied\n", LOCK_EX);
+    }
+
+    $index = trailingslashit($directory) . 'index.php';
+    if (!is_file($index)) {
+        file_put_contents($index, "<?php\n// Silence is golden.\n", LOCK_EX);
+    }
+}
+
+function pcp_process_fast_direct_form_mail_file(string $file): bool
+{
+    if (!is_file($file)) {
+        return false;
+    }
+
+    $payload = json_decode((string) file_get_contents($file), true);
+
+    if (!is_array($payload)) {
+        wp_delete_file($file);
+
+        return false;
+    }
+
+    $messageId = pcp_fast_form_payload_id($payload);
+
+    if (pcp_fast_form_already_sent($messageId)) {
+        wp_delete_file($file);
+
+        return true;
+    }
+
+    $replyTo = sanitize_email((string) ($payload['reply_to'] ?? ''));
+    $attachments = array_filter((array) ($payload['attachments'] ?? []), 'is_string');
+    $sent = pcp_send_form_mail_now(
+        [
+            'to' => sanitize_email((string) ($payload['to'] ?? pcp_form_recipient())),
+            'subject' => sanitize_text_field((string) ($payload['subject'] ?? 'Nouveau message')),
+            'message' => (string) ($payload['message'] ?? ''),
+            'headers' => array_filter(
+                [
+                    'From: ' . pcp_form_mail_sender(),
+                    $replyTo ? 'Reply-To: ' . $replyTo : '',
+                ]
+            ),
+            'attachments' => $attachments,
+            'temporary_files' => $attachments,
+        ]
+    );
+
+    if ($sent) {
+        pcp_fast_form_mark_sent($messageId);
+        wp_delete_file($file);
+    }
+
+    return $sent;
+}
+
+function pcp_process_fast_direct_form_mail_request(): void
+{
+    $queueId = sanitize_key(wp_unslash($_POST['queue_id'] ?? ''));
+    $queueToken = sanitize_text_field(wp_unslash($_POST['queue_token'] ?? ''));
+    $file = pcp_fast_direct_form_file($queueId);
+
+    if (!$queueId || !$queueToken || !is_file($file)) {
+        wp_send_json_error(['message' => 'Aucun email en attente.'], 404);
+    }
+
+    $payload = json_decode((string) file_get_contents($file), true);
+
+    if (!is_array($payload) || !hash_equals((string) ($payload['queue_token_hash'] ?? ''), hash('sha256', $queueToken))) {
+        wp_send_json_error(['message' => 'Demande invalide.'], 403);
+    }
+
+    $sent = pcp_process_fast_direct_form_mail_file($file);
+
+    if ($sent) {
+        wp_send_json_success(['message' => 'Email envoye.']);
+    }
+
+    wp_send_json_error(['message' => 'Le message n a pas pu etre envoye.'], 500);
+}
+add_action('wp_ajax_pcp_process_fast_direct_form_mail', 'pcp_process_fast_direct_form_mail_request');
+add_action('wp_ajax_nopriv_pcp_process_fast_direct_form_mail', 'pcp_process_fast_direct_form_mail_request');
+
+function pcp_process_fast_direct_form_mail_queue(): void
+{
+    $upload = wp_upload_dir();
+    $directory = trailingslashit($upload['basedir']) . 'pcp-fast-form-direct';
+
+    if (!is_dir($directory) || get_transient('pcp_fast_direct_form_mail_queue_lock')) {
+        return;
+    }
+
+    pcp_protect_upload_queue_directory($directory);
+    set_transient('pcp_fast_direct_form_mail_queue_lock', '1', 5 * MINUTE_IN_SECONDS);
+
+    $processed = 0;
+    foreach (glob(trailingslashit($directory) . '*.json') ?: [] as $file) {
+        if (!is_file($file) || filemtime($file) > time() - 30) {
+            continue;
+        }
+
+        pcp_process_fast_direct_form_mail_file($file);
+        $processed++;
+
+        if ($processed >= 20) {
+            break;
+        }
+    }
+
+    delete_transient('pcp_fast_direct_form_mail_queue_lock');
+}
+add_action('pcp_process_fast_direct_form_mail_queue', 'pcp_process_fast_direct_form_mail_queue');
+
+function pcp_process_queued_form_mail_event(string $queueId, string $nonce): void
+{
+    if (!wp_verify_nonce($nonce, 'pcp_process_form_mail_' . $queueId)) {
+        return;
+    }
+
+    pcp_process_queued_form_mail($queueId);
+}
+add_action('pcp_process_queued_form_mail_event', 'pcp_process_queued_form_mail_event', 10, 2);
 
 function pcp_send_custom_form_mail(array $payload): void
 {
@@ -327,6 +554,10 @@ add_action('pcp_process_fast_form_queue', 'pcp_process_fast_form_queue');
 function pcp_schedule_fast_form_queue(): void
 {
     wp_clear_scheduled_hook('pcp_process_fast_form_queue');
+
+    if (!wp_next_scheduled('pcp_process_fast_direct_form_mail_queue')) {
+        wp_schedule_event(time() + MINUTE_IN_SECONDS, 'pcp_every_minute', 'pcp_process_fast_direct_form_mail_queue');
+    }
 }
 add_action('init', 'pcp_schedule_fast_form_queue');
 
@@ -380,12 +611,13 @@ function pcp_submit_form(): void
             'Ville: ' . pcp_form_field('city'),
             'Type de projet: ' . pcp_form_field('project_type'),
             'Materiau souhaite: ' . pcp_form_field('desired_material'),
+            'Budget approximatif: ' . pcp_form_field('budget'),
             'Dimensions: ' . pcp_form_field('project_dimensions'),
             '',
             'Message:',
             $message,
         ];
-        $subject = '[Plan Ceramique Premium] Nouvelle demande de devis';
+        $subject = '[Plan Ceramique Studio] Nouvelle demande de devis';
         $attachments = $attachment ? [$attachment] : [];
     } else {
         $name = pcp_form_field('name');
@@ -398,11 +630,11 @@ function pcp_submit_form(): void
             'Message:',
             $message,
         ];
-        $subject = '[Plan Ceramique Premium] Nouveau message de contact';
+        $subject = '[Plan Ceramique Studio] Nouveau message de contact';
         $attachments = [];
     }
 
-    $sent = pcp_send_form_mail_now(
+    $queued = pcp_queue_form_mail(
         [
             'to' => pcp_form_recipient(),
             'subject' => $subject,
@@ -416,11 +648,13 @@ function pcp_submit_form(): void
         ]
     );
 
-    if (!$sent) {
-        wp_send_json_error(['message' => 'Le message n a pas pu etre envoye. Merci de reessayer.'], 500);
-    }
-
-    wp_send_json_success(['message' => 'Merci, votre demande a bien ete envoyee.']);
+    wp_send_json_success(
+        [
+            'message' => 'Merci, votre demande a bien ete envoyee.',
+            'queueId' => $queued['queue_id'],
+            'queueNonce' => $queued['nonce'],
+        ]
+    );
 }
 add_action('wp_ajax_pcp_submit_form', 'pcp_submit_form');
 add_action('wp_ajax_nopriv_pcp_submit_form', 'pcp_submit_form');
@@ -505,6 +739,15 @@ function pcp_render_quote_form(): string
           <option value="Effet pierre naturelle">Effet pierre naturelle</option>
           <option value="Effet beton mineral">Effet beton mineral</option>
           <option value="A definir avec un conseiller">A definir avec un conseiller</option>
+        </select>
+      </label>
+      <label>Budget approximatif
+        <select name="budget">
+          <option value="A definir">A definir</option>
+          <option value="Moins de 2 000 euros">Moins de 2 000 euros</option>
+          <option value="2 000 a 5 000 euros">2 000 a 5 000 euros</option>
+          <option value="5 000 a 10 000 euros">5 000 a 10 000 euros</option>
+          <option value="Plus de 10 000 euros">Plus de 10 000 euros</option>
         </select>
       </label>
       <label>Dimensions approximatives

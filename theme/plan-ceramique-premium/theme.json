@@ -7,12 +7,14 @@
       "custom": true,
       "defaultPalette": false,
       "palette": [
-        { "slug": "sand", "name": "Sand", "color": "#f4efe8" },
-        { "slug": "stone", "name": "Stone", "color": "#d7c9ba" },
-        { "slug": "charcoal", "name": "Charcoal", "color": "#1d232b" },
-        { "slug": "earth", "name": "Earth", "color": "#8a5a44" },
-        { "slug": "clay", "name": "Clay", "color": "#b87453" },
-        { "slug": "white", "name": "White", "color": "#ffffff" }
+        { "slug": "white-warm", "name": "Warm White", "color": "#FBF8F2" },
+        { "slug": "porcelain", "name": "Porcelain", "color": "#F4EFE6" },
+        { "slug": "stone-light", "name": "Stone Light", "color": "#E7DFD2" },
+        { "slug": "champagne", "name": "Champagne", "color": "#C9A76A" },
+        { "slug": "walnut", "name": "Walnut", "color": "#6B4E35" },
+        { "slug": "sage", "name": "Sage", "color": "#A7B3A0" },
+        { "slug": "clay", "name": "Clay", "color": "#B8785F" },
+        { "slug": "text-main", "name": "Text Main", "color": "#1D1D1B" }
       ]
     },
     "layout": {
@@ -54,8 +56,8 @@
   },
   "styles": {
     "color": {
-      "background": "#fffdf9",
-      "text": "#1d232b"
+      "background": "#FBF8F2",
+      "text": "#1D1D1B"
     },
     "spacing": {
       "padding": {

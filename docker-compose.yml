@@ -72,6 +72,19 @@ services:
       retries: 10
       start_period: 30s
 
+  cron:
+    image: wordpress:6.8.3-php8.2-apache
+    container_name: ${COMPOSE_PROJECT_NAME}_cron
+    restart: unless-stopped
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    command: >
+      sh -c 'while true; do
+        php -r "file_get_contents(\"http://wordpress/wp-cron.php?doing_wp_cron=\" . time());" >/dev/null 2>&1 || true;
+        sleep 60;
+      done'
+
   mailpit:
     image: axllent/mailpit:latest
     container_name: ${COMPOSE_PROJECT_NAME}_mailpit

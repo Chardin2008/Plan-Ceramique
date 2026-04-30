@@ -15,7 +15,7 @@ $options = get_option('easy_wp_smtp', []);
 
 $options['mail'] = [
     'from_email' => getenv('SMTP_FROM_EMAIL') ?: 'contact@plan-travail-ceramique.fr',
-    'from_name' => getenv('SMTP_FROM_NAME') ?: 'Plan Céramique Premium',
+    'from_name' => getenv('SMTP_FROM_NAME') ?: 'Plan Céramique Studio',
     'mailer' => 'smtp',
 ];
 

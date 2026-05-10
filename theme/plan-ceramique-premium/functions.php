@@ -5,6 +5,7 @@ require_once get_template_directory() . '/inc/assets.php';
 require_once get_template_directory() . '/inc/settings.php';
 require_once get_template_directory() . '/inc/content-types.php';
 require_once get_template_directory() . '/inc/admin-content.php';
+require_once get_template_directory() . '/inc/home-blocks.php';
 require_once get_template_directory() . '/inc/mail-brake.php';
 require_once get_template_directory() . '/inc/custom-forms.php';
 

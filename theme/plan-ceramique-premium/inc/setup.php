@@ -16,7 +16,7 @@ function pcp_theme_setup(): void
         ['comment-form', 'comment-list', 'gallery', 'caption', 'script', 'style', 'search-form']
     );
 
-    add_editor_style('assets/css/editor.css');
+    add_editor_style(['assets/css/main.css', 'assets/css/editor.css']);
 
     register_nav_menus(
         [

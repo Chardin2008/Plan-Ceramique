@@ -9,7 +9,7 @@ $fallback = [
 ];
 $query = new WP_Query(['post_type' => 'pcp_realisation', 'posts_per_page' => 8, 'no_found_rows' => true]);
 ?>
-<section class="pcstudio-section pcstudio-gallery reveal-up" data-filter-scope data-lightbox-gallery>
+<section class="pcstudio-section pcstudio-gallery reveal-up" id="galerie" data-filter-scope data-lightbox-gallery>
   <div class="pcstudio-section__heading">
     <p class="pcstudio-label"><?php esc_html_e('Galerie immersive', 'plan-ceramique-premium'); ?></p>
     <h2><?php esc_html_e('Galerie d’inspirations', 'plan-ceramique-premium'); ?></h2>

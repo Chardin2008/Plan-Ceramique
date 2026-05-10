@@ -2,6 +2,8 @@
 get_header();
 
 $asset_img = static fn(string $file): string => get_template_directory_uri() . '/assets/img/' . $file;
+$page_id = get_queried_object_id();
+$hero_image = pcp_admin_content_value($page_id, 'pcp_hero_image', 'hero-light-ceramique.jpg');
 
 $surfaceCards = [
     ['num' => '01', 'title' => 'Chaleur', 'text' => 'Une surface céramique pensée pour les cuisines exigeantes et les usages quotidiens intensifs.'],
@@ -10,6 +12,41 @@ $surfaceCards = [
     ['num' => '04', 'title' => 'UV', 'text' => 'Des finitions qui conservent leur présence visuelle, en intérieur comme sur certains projets extérieurs.'],
     ['num' => '05', 'title' => 'Usage intensif', 'text' => 'Un choix pertinent pour cuisines familiales, îlots centraux, salles de bain et projets professionnels.'],
 ];
+
+$surfaceCards = pcp_admin_content_pipe_rows($page_id, 'pcp_surface_cards', ['num', 'title', 'text'], $surfaceCards);
+$editorialCards = pcp_admin_content_pipe_rows(
+    $page_id,
+    'pcp_cards_json',
+    ['title', 'text'],
+    [
+        ['title' => 'Design', 'text' => 'Une présence architecturale qui structure la cuisine.'],
+        ['title' => 'Résistance', 'text' => 'Une matière minérale adaptée aux usages exigeants.'],
+        ['title' => 'Ambiance', 'text' => 'Des teintes claires, chaleureuses et haut de gamme.'],
+    ]
+);
+$heroBadges = pcp_admin_content_lines(
+    $page_id,
+    'pcp_hero_badges',
+    [
+        'Résistant chaleur',
+        'Résistant rayures',
+        'Intérieur / extérieur',
+    ]
+);
+$scannerPoints = pcp_admin_content_pipe_rows(
+    $page_id,
+    'pcp_scanner_points',
+    ['num', 'x', 'y', 'title', 'text'],
+    [
+        ['num' => '1', 'x' => '22%', 'y' => '32%', 'title' => 'Veinage', 'text' => 'Un dessin minéral subtil apporte du mouvement sans alourdir la pièce.'],
+        ['num' => '2', 'x' => '48%', 'y' => '24%', 'title' => 'Texture', 'text' => 'Un toucher mat ou satiné donne une lecture plus douce et plus architecturale.'],
+        ['num' => '3', 'x' => '74%', 'y' => '45%', 'title' => 'Résistance', 'text' => 'La céramique convient aux surfaces très sollicitées avec un entretien simple.'],
+        ['num' => '4', 'x' => '38%', 'y' => '72%', 'title' => 'Entretien', 'text' => 'La surface se nettoie facilement au quotidien, sans protocole compliqué.'],
+        ['num' => '5', 'x' => '68%', 'y' => '76%', 'title' => 'Ambiance', 'text' => 'Les tons clairs dialoguent avec le bois, le champagne, le sauge et les murs chauds.'],
+        ['num' => '6', 'x' => '86%', 'y' => '64%', 'title' => 'Usage conseillé', 'text' => 'Cuisine, îlot, crédence, salle de bain ou table sur mesure.'],
+    ]
+);
+$activeScannerPoint = $scannerPoints[0] ?? ['title' => 'Veinage', 'text' => 'Un dessin minéral subtil apporte du mouvement sans alourdir la pièce.'];
 
 $ambiances = [
     [
@@ -35,6 +72,17 @@ $ambiances = [
     ],
 ];
 
+$ambiances = array_map(
+    static function (array $ambiance): array {
+        if (isset($ambiance['colors']) && is_string($ambiance['colors'])) {
+            $ambiance['colors'] = array_filter(array_map('trim', explode(',', $ambiance['colors'])));
+        }
+
+        return $ambiance;
+    },
+    pcp_admin_content_pipe_rows($page_id, 'pcp_ambiance_cards', ['title', 'image', 'alt', 'text', 'colors'], $ambiances)
+);
+
 $applications = [
     ['title' => 'Plan de travail cuisine', 'image' => 'kitchen-white-ceramique.jpg', 'alt' => 'Plan de travail cuisine en céramique claire'],
     ['title' => 'Îlot central', 'image' => 'island-light-ceramique.jpg', 'alt' => 'Îlot central avec surface céramique premium'],
@@ -44,6 +92,34 @@ $applications = [
     ['title' => 'Extérieur', 'image' => 'outdoor-light-ceramique.jpg', 'alt' => 'Espace extérieur clair avec surface céramique'],
 ];
 
+$applications = pcp_admin_content_pipe_rows($page_id, 'pcp_applications', ['title', 'image', 'alt'], $applications);
+$compareColumns = pcp_admin_content_blocks(
+    $page_id,
+    'pcp_compare_columns',
+    [
+        [
+            'title' => 'Surface céramique',
+            'items' => [
+                'Bonne tenue à la chaleur selon usage et finition.',
+                'Très bonne résistance aux rayures du quotidien.',
+                'Entretien simple sur surface compacte.',
+                'Compatible avec de nombreux projets intérieurs.',
+                'Rendu esthétique minéral très premium.',
+            ],
+        ],
+        [
+            'title' => 'Surface classique',
+            'items' => [
+                'Performances variables selon matériau.',
+                'Plus sensible aux traces ou impacts selon usage.',
+                'Entretien parfois plus spécifique.',
+                'Moins adaptée à certains environnements exigeants.',
+                'Rendu dépendant fortement de la finition.',
+            ],
+        ],
+    ]
+);
+
 $process = [
     'Analyse de votre espace',
     'Sélection de la matière',
@@ -52,6 +128,7 @@ $process = [
     'Pose et ajustement',
     'Contrôle final',
 ];
+$process = pcp_admin_content_lines($page_id, 'pcp_process_steps', $process);
 
 $details = [
     'Épaisseur',
@@ -61,6 +138,7 @@ $details = [
     'Crédence assortie',
     'Arrondis et découpes spéciales',
 ];
+$details = pcp_admin_content_lines($page_id, 'pcp_premium_details', $details);
 
 $fallbackPosts = [
     ['cat' => 'Conseils', 'title' => 'Comment choisir la bonne couleur pour un plan céramique ?', 'image' => 'blog-material-choice.jpg', 'text' => 'Couleur claire, effet marbre, pierre naturelle ou ambiance chaleureuse : chaque finition change l’atmosphère de la cuisine.'],
@@ -72,53 +150,53 @@ $fallbackPosts = [
 <div class="pcstudio-loader" aria-hidden="true">
   <div class="pcstudio-loader__brand">
     <span class="logo-mark">D</span>
-    <span>PLAN CÉRAMIQUE STUDIO</span>
+    <span><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_loader_brand', 'PLAN CÉRAMIQUE STUDIO')); ?></span>
   </div>
   <span class="pcstudio-loader__line"></span>
-  <p>Surface nouvelle génération</p>
+  <p><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_loader_text', 'Surface nouvelle génération')); ?></p>
 </div>
 
 <main id="main-content" class="site-main pcstudio">
   <section class="pcstudio-hero" id="accueil">
     <div class="pcstudio-hero__copy reveal-up">
-      <p class="pcstudio-label">Studio de surfaces premium</p>
-      <h1 class="hero-title">Plan céramique nouvelle génération</h1>
-      <p class="pcstudio-hero__lead">Des plans de travail premium pour cuisines, îlots, salles de bain et projets architecturaux.</p>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_hero_eyebrow', 'Studio de surfaces premium')); ?></p>
+      <h1 class="hero-title"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_hero_title', 'Plan céramique nouvelle génération')); ?></h1>
+      <p class="pcstudio-hero__lead"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_hero_lead', 'Des plans de travail premium pour cuisines, îlots, salles de bain et projets architecturaux.')); ?></p>
       <div class="pcstudio-actions">
-        <a class="button" href="#devis">Demander un devis</a>
-        <a class="button button--ghost" href="#matieres">Explorer les matières</a>
+        <a class="button" href="#devis"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_primary_cta_text', 'Demander un devis')); ?></a>
+        <a class="button button--ghost" href="#matieres"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_secondary_cta_text', 'Explorer les matières')); ?></a>
       </div>
       <div class="pcstudio-badges" aria-label="Avantages principaux">
-        <span>Résistant chaleur</span>
-        <span>Résistant rayures</span>
-        <span>Intérieur / extérieur</span>
+<?php foreach ($heroBadges as $badge) : ?>
+        <span><?php echo esc_html($badge); ?></span>
+<?php endforeach; ?>
       </div>
     </div>
     <figure class="pcstudio-hero__media reveal-up">
-      <img src="<?php echo esc_url($asset_img('hero-light-ceramique.jpg')); ?>" width="980" height="720" alt="<?php esc_attr_e('Cuisine lumineuse haut de gamme avec plan de travail en céramique claire', 'plan-ceramique-premium'); ?>">
-      <figcaption>Cuisine — Îlot central — Salle de bain — Crédence — Extérieur</figcaption>
+      <img src="<?php echo esc_url($asset_img($hero_image)); ?>" width="980" height="720" alt="<?php echo esc_attr(pcp_admin_content_value($page_id, 'pcp_hero_image_alt', 'Cuisine lumineuse haut de gamme avec plan de travail en céramique claire')); ?>">
+      <figcaption><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_hero_caption', 'Cuisine — Îlot central — Salle de bain — Crédence — Extérieur')); ?></figcaption>
     </figure>
   </section>
 
   <section class="pcstudio-section pcstudio-editorial reveal-up" id="matieres">
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label">Nouvelle ère</p>
-      <h2>L’ère nouvelle du plan de travail</h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_intro_eyebrow', 'Nouvelle ère')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_intro_title', 'L’ère nouvelle du plan de travail')); ?></h2>
     </div>
     <div class="pcstudio-editorial__grid">
-      <p>Le plan de travail n’est plus seulement une surface fonctionnelle. Il devient une pièce centrale de l’espace, un élément de design, de confort et de personnalité.</p>
+      <p><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_intro_text', 'Le plan de travail n’est plus seulement une surface fonctionnelle. Il devient une pièce centrale de l’espace, un élément de design, de confort et de personnalité.')); ?></p>
       <div class="pcstudio-editorial__cards">
-        <article><span>Design</span><p>Une présence architecturale qui structure la cuisine.</p></article>
-        <article><span>Résistance</span><p>Une matière minérale adaptée aux usages exigeants.</p></article>
-        <article><span>Ambiance</span><p>Des teintes claires, chaleureuses et haut de gamme.</p></article>
+<?php foreach ($editorialCards as $card) : ?>
+        <article><span><?php echo esc_html($card['title']); ?></span><p><?php echo esc_html($card['text']); ?></p></article>
+<?php endforeach; ?>
       </div>
     </div>
   </section>
 
   <section class="pcstudio-section pcstudio-surface reveal-up">
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label">Surface Intelligence</p>
-      <h2>Une surface pensée pour les espaces exigeants.</h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_surface_eyebrow', 'Surface Intelligence')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_surface_title', 'Une surface pensée pour les espaces exigeants.')); ?></h2>
     </div>
     <div class="pcstudio-surface__grid">
       <?php foreach ($surfaceCards as $card) : ?>
@@ -135,23 +213,20 @@ $fallbackPosts = [
 
   <section class="pcstudio-section pcstudio-scanner reveal-up" data-scanner>
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label">Material Scanner</p>
-      <h2>Analysez la matière qui donnera du caractère à votre espace.</h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_scanner_eyebrow', 'Material Scanner')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_scanner_title', 'Analysez la matière qui donnera du caractère à votre espace.')); ?></h2>
     </div>
     <div class="pcstudio-scanner__stage">
       <figure>
-        <img src="<?php echo esc_url($asset_img('texture-white-vein.jpg')); ?>" loading="lazy" width="920" height="620" alt="<?php esc_attr_e('Texture claire de surface céramique veinée', 'plan-ceramique-premium'); ?>">
-        <button class="scanner-point is-active" type="button" style="--x:22%;--y:32%" data-title="Veinage" data-text="Un dessin minéral subtil apporte du mouvement sans alourdir la pièce.">1</button>
-        <button class="scanner-point" type="button" style="--x:48%;--y:24%" data-title="Texture" data-text="Un toucher mat ou satiné donne une lecture plus douce et plus architecturale.">2</button>
-        <button class="scanner-point" type="button" style="--x:74%;--y:45%" data-title="Résistance" data-text="La céramique convient aux surfaces très sollicitées avec un entretien simple.">3</button>
-        <button class="scanner-point" type="button" style="--x:38%;--y:72%" data-title="Entretien" data-text="La surface se nettoie facilement au quotidien, sans protocole compliqué.">4</button>
-        <button class="scanner-point" type="button" style="--x:68%;--y:76%" data-title="Ambiance" data-text="Les tons clairs dialoguent avec le bois, le champagne, le sauge et les murs chauds.">5</button>
-        <button class="scanner-point" type="button" style="--x:86%;--y:64%" data-title="Usage conseillé" data-text="Cuisine, îlot, crédence, salle de bain ou table sur mesure.">6</button>
+        <img src="<?php echo esc_url($asset_img(pcp_admin_content_value($page_id, 'pcp_scanner_image', 'texture-white-vein.jpg'))); ?>" loading="lazy" width="920" height="620" alt="<?php echo esc_attr(pcp_admin_content_value($page_id, 'pcp_scanner_image_alt', 'Texture claire de surface céramique veinée')); ?>">
+<?php foreach ($scannerPoints as $index => $point) : ?>
+        <button class="scanner-point<?php echo $index === 0 ? ' is-active' : ''; ?>" type="button" style="--x:<?php echo esc_attr($point['x']); ?>;--y:<?php echo esc_attr($point['y']); ?>" data-title="<?php echo esc_attr($point['title']); ?>" data-text="<?php echo esc_attr($point['text']); ?>"><?php echo esc_html($point['num']); ?></button>
+<?php endforeach; ?>
       </figure>
       <aside class="pcstudio-scanner__panel">
-        <p class="pcstudio-label">Point matière</p>
-        <h3 data-scanner-title>Veinage</h3>
-        <p data-scanner-text>Un dessin minéral subtil apporte du mouvement sans alourdir la pièce.</p>
+        <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_scanner_panel_eyebrow', 'Point matière')); ?></p>
+        <h3 data-scanner-title><?php echo esc_html($activeScannerPoint['title']); ?></h3>
+        <p data-scanner-text><?php echo esc_html($activeScannerPoint['text']); ?></p>
       </aside>
     </div>
   </section>
@@ -160,8 +235,8 @@ $fallbackPosts = [
 
   <section class="pcstudio-section pcstudio-moods reveal-up" id="ambiances">
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label">Ambiances signatures</p>
-      <h2>Choisissez une atmosphère, pas seulement une matière.</h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_ambiance_eyebrow', 'Ambiances signatures')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_ambiance_title', 'Choisissez une atmosphère, pas seulement une matière.')); ?></h2>
     </div>
     <div class="pcstudio-moods__grid">
       <?php foreach ($ambiances as $ambiance) : ?>
@@ -175,7 +250,7 @@ $fallbackPosts = [
                 <span style="--swatch: <?php echo esc_attr($color); ?>"></span>
               <?php endforeach; ?>
             </div>
-            <a href="#devis">Choisir cette ambiance</a>
+            <a href="#devis"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_ambiance_cta_text', 'Choisir cette ambiance')); ?></a>
           </div>
         </article>
       <?php endforeach; ?>
@@ -231,8 +306,8 @@ $fallbackPosts = [
 
   <section class="pcstudio-section pcstudio-applications reveal-up" id="applications">
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label">Applications</p>
-      <h2>Une matière, plusieurs espaces</h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_applications_eyebrow', 'Applications')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_applications_title', 'Une matière, plusieurs espaces')); ?></h2>
     </div>
     <div class="pcstudio-applications__grid">
       <?php foreach ($applications as $item) : ?>
@@ -246,37 +321,27 @@ $fallbackPosts = [
 
   <section class="pcstudio-section pcstudio-compare reveal-up">
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label">Comparateur</p>
-      <h2>Céramique vs surface classique</h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_compare_eyebrow', 'Comparateur')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_compare_title', 'Céramique vs surface classique')); ?></h2>
     </div>
     <div class="pcstudio-compare__grid">
-      <article class="is-featured">
-        <h3>Surface céramique</h3>
+<?php foreach ($compareColumns as $index => $column) : ?>
+      <article<?php echo $index === 0 ? ' class="is-featured"' : ''; ?>>
+        <h3><?php echo esc_html($column['title']); ?></h3>
         <ul>
-          <li>Bonne tenue à la chaleur selon usage et finition.</li>
-          <li>Très bonne résistance aux rayures du quotidien.</li>
-          <li>Entretien simple sur surface compacte.</li>
-          <li>Compatible avec de nombreux projets intérieurs.</li>
-          <li>Rendu esthétique minéral très premium.</li>
+<?php foreach ($column['items'] as $item) : ?>
+          <li><?php echo esc_html($item); ?></li>
+<?php endforeach; ?>
         </ul>
       </article>
-      <article>
-        <h3>Surface classique</h3>
-        <ul>
-          <li>Performances variables selon matériau.</li>
-          <li>Plus sensible aux traces ou impacts selon usage.</li>
-          <li>Entretien parfois plus spécifique.</li>
-          <li>Moins adaptée à certains environnements exigeants.</li>
-          <li>Rendu dépendant fortement de la finition.</li>
-        </ul>
-      </article>
+<?php endforeach; ?>
     </div>
   </section>
 
   <section class="pcstudio-section pcstudio-process reveal-up">
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label">Processus</p>
-      <h2>De l’idée à la surface finale</h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_process_eyebrow', 'Processus')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_process_title', 'De l’idée à la surface finale')); ?></h2>
     </div>
     <div class="pcstudio-process__grid">
       <?php foreach ($process as $index => $step) : ?>
@@ -290,8 +355,8 @@ $fallbackPosts = [
 
   <section class="pcstudio-section pcstudio-details reveal-up">
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label">Détails premium</p>
-      <h2>Les détails invisibles font le luxe visible</h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_details_eyebrow', 'Détails premium')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_details_title', 'Les détails invisibles font le luxe visible')); ?></h2>
     </div>
     <div class="pcstudio-details__grid">
       <?php foreach ($details as $detail) : ?>
@@ -325,14 +390,14 @@ $fallbackPosts = [
           <p class="pcstudio-label"><?php echo esc_html($post['cat']); ?></p>
           <h3><?php echo esc_html($post['title']); ?></h3>
           <p><?php echo esc_html($post['text']); ?></p>
-          <a href="<?php echo esc_url(home_url('/blog/')); ?>">Voir les conseils</a>
+          <a href="#devis">Demander un conseil</a>
         </article>
       <?php
           endforeach;
       endif;
       ?>
     </div>
-    <a class="button button--ghost pcstudio-blog__more" href="<?php echo esc_url(home_url('/blog/')); ?>">Voir tous les articles</a>
+    <a class="button button--ghost pcstudio-blog__more" href="#devis">Demander un conseil</a>
   </section>
 
   <?php get_template_part('template-parts/section', 'testimonials'); ?>
@@ -396,13 +461,13 @@ $fallbackPosts = [
 
   <section class="pcstudio-section pcstudio-final reveal-up">
     <div>
-      <p class="pcstudio-label">Projet architectural</p>
-      <h2>Votre projet mérite une surface d’exception</h2>
-      <p>Parlez-nous de votre espace, de vos envies et de votre ambiance idéale. Nous vous aidons à imaginer un plan céramique adapté à votre projet.</p>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_final_cta_eyebrow', 'Projet architectural')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_final_cta_title', 'Votre projet mérite une surface d’exception')); ?></h2>
+      <p><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_final_cta_text', 'Parlez-nous de votre espace, de vos envies et de votre ambiance idéale. Nous vous aidons à imaginer un plan céramique adapté à votre projet.')); ?></p>
     </div>
     <div class="pcstudio-actions">
-      <a class="button" href="#devis">Demander un devis</a>
-      <a class="button button--ghost" href="<?php echo esc_url(home_url('/blog/')); ?>">Lire le blog</a>
+      <a class="button" href="#devis"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_final_cta_button_text', 'Demander un devis')); ?></a>
+      <a class="button button--ghost" href="#matieres">Explorer les matières</a>
     </div>
   </section>
 

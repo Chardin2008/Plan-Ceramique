@@ -2,7 +2,9 @@
 
 function pcp_form_recipient(): string
 {
-    return getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com';
+    $setting = function_exists('pcp_get_setting') ? pcp_get_setting('form_recipient_email') : '';
+
+    return sanitize_email($setting ?: (getenv('PCP_FORM_RECIPIENT') ?: 'hello@mpc.contact'));
 }
 
 function pcp_form_mail_sender(): string
@@ -671,6 +673,20 @@ function pcp_contact_form_shortcode(array $atts): string
 }
 add_shortcode('pcp_contact_form', 'pcp_contact_form_shortcode');
 
+function pcp_form_setting(string $key, string $fallback = ''): string
+{
+    return function_exists('pcp_get_setting') ? (pcp_get_setting($key) ?: $fallback) : $fallback;
+}
+
+function pcp_render_select_options_from_setting(string $key): void
+{
+    $options = function_exists('pcp_setting_lines') ? pcp_setting_lines($key) : [];
+
+    foreach ($options as $option) {
+        echo '<option value="' . esc_attr($option) . '">' . esc_html($option) . '</option>';
+    }
+}
+
 function pcp_render_contact_form(): string
 {
     ob_start();
@@ -678,19 +694,19 @@ function pcp_render_contact_form(): string
     <form class="pcp-cf7-form" data-pcp-form>
       <input type="hidden" name="pcp_form_type" value="contact">
       <input type="text" name="website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;">
-      <label>Nom
+      <label><?php echo esc_html(pcp_form_setting('contact_form_name_label', 'Nom')); ?>
         <input type="text" name="name" autocomplete="name" required>
       </label>
-      <label>Email
+      <label><?php echo esc_html(pcp_form_setting('contact_form_email_label', 'Email')); ?>
         <input type="email" name="email" autocomplete="email" required>
       </label>
-      <label>Telephone
+      <label><?php echo esc_html(pcp_form_setting('contact_form_phone_label', 'Telephone')); ?>
         <input type="tel" name="phone" autocomplete="tel">
       </label>
-      <label>Votre message
+      <label><?php echo esc_html(pcp_form_setting('contact_form_message_label', 'Votre message')); ?>
         <textarea name="message" required></textarea>
       </label>
-      <p class="pcp-cf7-submit"><input type="submit" value="Envoyer le message"></p>
+      <p class="pcp-cf7-submit"><input type="submit" value="<?php echo esc_attr(pcp_form_setting('contact_form_submit_text', 'Envoyer le message')); ?>"></p>
       <p class="pcp-form-note" data-pcp-form-status aria-live="polite"></p>
     </form>
     <?php
@@ -705,61 +721,49 @@ function pcp_render_quote_form(): string
       <input type="hidden" name="pcp_form_type" value="quote">
       <input type="text" name="website" value="" autocomplete="off" tabindex="-1" aria-hidden="true" style="position:absolute;left:-9999px;">
       <div class="pcp-quote-row">
-        <label>Nom
+        <label><?php echo esc_html(pcp_form_setting('quote_form_last_name_label', 'Nom')); ?>
           <input type="text" name="last_name" autocomplete="family-name" required>
         </label>
-        <label>Prenom
+        <label><?php echo esc_html(pcp_form_setting('quote_form_first_name_label', 'Prenom')); ?>
           <input type="text" name="first_name" autocomplete="given-name" required>
         </label>
       </div>
       <div class="pcp-quote-row">
-        <label>Email
+        <label><?php echo esc_html(pcp_form_setting('quote_form_email_label', 'Email')); ?>
           <input type="email" name="email" autocomplete="email" required>
         </label>
-        <label>Telephone
+        <label><?php echo esc_html(pcp_form_setting('quote_form_phone_label', 'Telephone')); ?>
           <input type="tel" name="phone" autocomplete="tel">
         </label>
       </div>
-      <label>Ville
+      <label><?php echo esc_html(pcp_form_setting('quote_form_city_label', 'Ville')); ?>
         <input type="text" name="city">
       </label>
-      <label>Type de projet
+      <label><?php echo esc_html(pcp_form_setting('quote_form_project_type_label', 'Type de projet')); ?>
         <select name="project_type" required>
-          <option value="Plan de travail de cuisine">Plan de travail de cuisine</option>
-          <option value="Ilot central">Ilot central</option>
-          <option value="Credence assortie">Credence assortie</option>
-          <option value="Renovation de cuisine">Renovation de cuisine</option>
-          <option value="Projet professionnel">Projet professionnel</option>
+          <?php pcp_render_select_options_from_setting('quote_form_project_type_options'); ?>
         </select>
       </label>
-      <label>Materiau souhaite
+      <label><?php echo esc_html(pcp_form_setting('quote_form_material_label', 'Materiau souhaite')); ?>
         <select name="desired_material" required>
-          <option value="Ceramique aspect marbre">Ceramique aspect marbre</option>
-          <option value="Ceramique pleine masse">Ceramique pleine masse</option>
-          <option value="Effet pierre naturelle">Effet pierre naturelle</option>
-          <option value="Effet beton mineral">Effet beton mineral</option>
-          <option value="A definir avec un conseiller">A definir avec un conseiller</option>
+          <?php pcp_render_select_options_from_setting('quote_form_material_options'); ?>
         </select>
       </label>
-      <label>Budget approximatif
+      <label><?php echo esc_html(pcp_form_setting('quote_form_budget_label', 'Budget approximatif')); ?>
         <select name="budget">
-          <option value="A definir">A definir</option>
-          <option value="Moins de 2 000 euros">Moins de 2 000 euros</option>
-          <option value="2 000 a 5 000 euros">2 000 a 5 000 euros</option>
-          <option value="5 000 a 10 000 euros">5 000 a 10 000 euros</option>
-          <option value="Plus de 10 000 euros">Plus de 10 000 euros</option>
+          <?php pcp_render_select_options_from_setting('quote_form_budget_options'); ?>
         </select>
       </label>
-      <label>Dimensions approximatives
-        <input type="text" name="project_dimensions" placeholder="Exemple : 320 x 65 cm + ilot 180 x 90 cm">
+      <label><?php echo esc_html(pcp_form_setting('quote_form_dimensions_label', 'Dimensions approximatives')); ?>
+        <input type="text" name="project_dimensions" placeholder="<?php echo esc_attr(pcp_form_setting('quote_form_dimensions_placeholder', 'Exemple : 320 x 65 cm + ilot 180 x 90 cm')); ?>">
       </label>
-      <label>Message
-        <textarea name="message" placeholder="Decrivez votre cuisine, vos contraintes et le niveau de finition attendu." required></textarea>
+      <label><?php echo esc_html(pcp_form_setting('quote_form_message_label', 'Message')); ?>
+        <textarea name="message" placeholder="<?php echo esc_attr(pcp_form_setting('quote_form_message_placeholder', 'Decrivez votre cuisine, vos contraintes et le niveau de finition attendu.')); ?>" required></textarea>
       </label>
-      <label>Plan ou photo
+      <label><?php echo esc_html(pcp_form_setting('quote_form_file_label', 'Plan ou photo')); ?>
         <input type="file" name="project_file" accept=".jpg,.jpeg,.png,.pdf">
       </label>
-      <input type="submit" value="Recevoir mon etude de projet">
+      <input type="submit" value="<?php echo esc_attr(pcp_form_setting('quote_form_submit_text', 'Recevoir mon etude de projet')); ?>">
       <p class="pcp-form-note" data-pcp-form-status aria-live="polite"></p>
     </form>
     <?php

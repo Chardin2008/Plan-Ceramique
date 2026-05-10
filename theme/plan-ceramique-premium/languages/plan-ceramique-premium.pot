@@ -1,0 +1,12 @@
+# Copyright (C) 2026 Plan Céramique Studio
+# This file is distributed under the same license as the Plan Céramique Studio theme.
+msgid ""
+msgstr ""
+"Project-Id-Version: Plan Céramique Studio 1.0.7\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-06 00:00+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Codex\n"
+"X-Domain: plan-ceramique-premium\n"

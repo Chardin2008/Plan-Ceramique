@@ -1529,9 +1529,12 @@ body.menu-open .site-header {
 }
 
 .site-logo {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: 12px;
+  min-width: 0;
+  max-width: 260px;
   color: var(--text-main);
   text-decoration: none;
 }
@@ -1558,6 +1561,7 @@ body.menu-open .site-header {
   display: grid;
   gap: 2px;
   line-height: 1;
+  min-width: 0;
 }
 
 .logo-text strong {
@@ -1565,6 +1569,9 @@ body.menu-open .site-header {
   font-size: 13px;
   font-weight: 850;
   letter-spacing: 0.08em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .logo-text small {
@@ -2858,6 +2865,10 @@ body.menu-open .site-header {
 }
 
 @media (max-width: 1180px) {
+  .site-logo {
+    max-width: calc(100% - 70px);
+  }
+
   .site-header__nav-shell {
     position: fixed;
     inset: 76px 18px auto;

@@ -3,7 +3,7 @@
   <?php while (have_posts()) : the_post(); ?>
     <?php
     $postId = get_the_ID();
-    $image = get_the_post_thumbnail_url($postId, 'large') ?: get_template_directory_uri() . '/assets/img/blog-material-choice.jpg';
+    $image = pcp_post_image_url($postId);
     $categories = get_the_category($postId);
     $category = $categories ? $categories[0] : null;
     $related = new WP_Query(

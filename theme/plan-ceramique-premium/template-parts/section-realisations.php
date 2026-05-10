@@ -25,7 +25,7 @@ $query = new WP_Query(['post_type' => 'pcp_realisation', 'posts_per_page' => 6, 
             <h3><?php the_title(); ?></h3>
             <p><?php echo esc_html(pcp_excerpt_text(get_post(), 20)); ?></p>
             <small><?php echo esc_html(pcp_post_meta($postId, 'pcp_mood', __('Ambiance premium', 'plan-ceramique-premium'))); ?></small>
-            <a href="<?php the_permalink(); ?>"><?php esc_html_e('Découvrir', 'plan-ceramique-premium'); ?></a>
+            <a href="#devis"><?php esc_html_e('Préparer un projet similaire', 'plan-ceramique-premium'); ?></a>
           </div>
         </article>
       <?php endwhile; wp_reset_postdata(); ?>

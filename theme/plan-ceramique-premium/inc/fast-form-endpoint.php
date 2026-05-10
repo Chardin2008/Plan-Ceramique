@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 header('Content-Type: application/json; charset=utf-8');
 
+$wpLoad = dirname(__DIR__, 4) . '/wp-load.php';
+if (is_file($wpLoad)) {
+    require_once $wpLoad;
+}
+
 function pcp_fast_json(bool $success, string $message, int $status = 200): void
 {
     http_response_code($status);
@@ -25,6 +30,19 @@ function pcp_fast_field(string $key): string
 function pcp_fast_message(string $key): string
 {
     return trim(strip_tags((string) ($_POST[$key] ?? '')));
+}
+
+function pcp_fast_form_recipient(): string
+{
+    if (function_exists('pcp_get_setting')) {
+        $setting = pcp_get_setting('form_recipient_email');
+
+        if ($setting !== '') {
+            return $setting;
+        }
+    }
+
+    return getenv('PCP_FORM_RECIPIENT') ?: 'hello@mpc.contact';
 }
 
 function pcp_fast_dir(string $leaf): string
@@ -92,7 +110,7 @@ function pcp_fast_attachment(string $field): ?string
     return move_uploaded_file($file['tmp_name'], $target) ? $target : null;
 }
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     pcp_fast_json(false, 'Methode non autorisee.', 405);
 }
 
@@ -145,7 +163,7 @@ if ($type === 'quote') {
 
 $payload = [
     'message_id' => bin2hex(random_bytes(16)),
-    'to' => getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com',
+    'to' => pcp_fast_form_recipient(),
     'reply_to' => $email,
     'subject' => $subject,
     'message' => implode("\n", $lines),

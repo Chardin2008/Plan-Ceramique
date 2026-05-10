@@ -2,6 +2,8 @@
 
 function pcp_theme_setup(): void
 {
+    load_theme_textdomain('plan-ceramique-premium', get_template_directory() . '/languages');
+
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
     add_theme_support('responsive-embeds');
@@ -19,6 +21,7 @@ function pcp_theme_setup(): void
     register_nav_menus(
         [
             'primary' => __('Navigation principale', 'plan-ceramique-premium'),
+            'footer' => __('Navigation pied de page', 'plan-ceramique-premium'),
         ]
     );
 }

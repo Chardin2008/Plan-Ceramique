@@ -343,7 +343,7 @@ function pcp_upsert_cf7_form(string $slug, string $title, string $formMarkup, ar
             'subject' => '[' . get_bloginfo('name') . '] Nouveau message',
             'sender' => 'Plan Céramique Studio <wordpress@localhost>',
             'body' => '',
-            'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com',
+            'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'hello@mpc.contact',
             'additional_headers' => '',
             'attachments' => '',
             'use_html' => 0,
@@ -419,7 +419,7 @@ CF7;
 $contactMail = [
     'subject' => '[Plan Céramique Studio] Nouveau message de contact',
     'sender' => 'Plan Céramique Studio <wordpress@localhost>',
-    'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com',
+    'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'hello@mpc.contact',
     'body' => "Nom : [your-name]\nEmail : [your-email]\nTéléphone : [your-phone]\n\nMessage :\n[your-message]",
     'additional_headers' => 'Reply-To: [your-email]',
     'attachments' => '',
@@ -472,7 +472,7 @@ CF7;
 $quoteMail = [
     'subject' => '[Plan Céramique Studio] Nouvelle demande de devis',
     'sender' => 'Plan Céramique Studio <wordpress@localhost>',
-    'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'chardinpoutcheu@gmail.com',
+    'recipient' => getenv('PCP_FORM_RECIPIENT') ?: 'hello@mpc.contact',
     'body' => "Nom : [your-last-name]\nPrénom : [your-first-name]\nEmail : [your-email]\nTéléphone : [your-phone]\nVille : [your-city]\nType de projet : [project-type]\nMatériau souhaité : [desired-material]\nDimensions approximatives : [project-dimensions]\n\nMessage :\n[your-message]",
     'additional_headers' => 'Reply-To: [your-email]',
     'attachments' => '[your-file]',

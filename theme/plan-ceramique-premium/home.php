@@ -1,20 +1,24 @@
-<?php get_header(); ?>
+<?php
+get_header();
+$page_id = (int) get_option('page_for_posts');
+$hero_image = pcp_admin_content_value($page_id, 'pcp_hero_image', 'blog-kitchen-trends.jpg');
+?>
 <main id="main-content" class="site-main pcstudio pcstudio-blog-page">
   <section class="pcstudio-hero pcstudio-hero--blog">
     <div class="pcstudio-hero__copy">
-      <p class="pcstudio-label"><?php esc_html_e('Conseils & inspirations', 'plan-ceramique-premium'); ?></p>
-      <h1 class="hero-title"><?php esc_html_e('Blog céramique premium', 'plan-ceramique-premium'); ?></h1>
-      <p class="pcstudio-hero__lead"><?php esc_html_e('Guides, tendances et idées pour imaginer un plan de travail lumineux, durable et parfaitement intégré à votre espace.', 'plan-ceramique-premium'); ?></p>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_hero_eyebrow', 'Conseils & inspirations')); ?></p>
+      <h1 class="hero-title"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_hero_title', 'Blog céramique premium')); ?></h1>
+      <p class="pcstudio-hero__lead"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_hero_lead', 'Guides, tendances et idées pour imaginer un plan de travail lumineux, durable et parfaitement intégré à votre espace.')); ?></p>
     </div>
     <figure class="pcstudio-hero__media">
-      <img src="<?php echo esc_url(get_template_directory_uri() . '/assets/img/blog-kitchen-trends.jpg'); ?>" width="980" height="720" alt="<?php esc_attr_e('Moodboard cuisine premium avec céramique claire et bois', 'plan-ceramique-premium'); ?>">
+      <img src="<?php echo esc_url(pcp_asset_img($hero_image)); ?>" width="980" height="720" alt="<?php echo esc_attr(pcp_admin_content_value($page_id, 'pcp_hero_image_alt', 'Moodboard cuisine premium avec céramique claire et bois')); ?>">
     </figure>
   </section>
 
   <section class="pcstudio-section pcstudio-blog">
     <div class="pcstudio-section__heading">
-      <p class="pcstudio-label"><?php esc_html_e('Articles', 'plan-ceramique-premium'); ?></p>
-      <h2><?php esc_html_e('Des repères clairs pour préparer votre projet.', 'plan-ceramique-premium'); ?></h2>
+      <p class="pcstudio-label"><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_intro_eyebrow', 'Articles')); ?></p>
+      <h2><?php echo esc_html(pcp_admin_content_value($page_id, 'pcp_intro_title', 'Des repères clairs pour préparer votre projet.')); ?></h2>
     </div>
     <?php if (have_posts()) : ?>
       <div class="pcstudio-blog__grid">

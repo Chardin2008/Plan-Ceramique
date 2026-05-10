@@ -1,4 +1,8 @@
 <?php
+$brandName = pcp_get_setting('brand_name') ?: 'PLAN CÉRAMIQUE';
+$brandSuffix = pcp_get_setting('brand_suffix') ?: 'STUDIO';
+$brandHomeLabel = pcp_get_setting('brand_home_label') ?: 'Plan Céramique Studio - Accueil';
+$primaryCtaText = pcp_get_setting('primary_cta_text') ?: 'Demander un devis';
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -16,11 +20,11 @@
 
 <header class="site-header" data-site-header>
   <div class="site-header__inner">
-    <a class="site-logo" href="<?php echo esc_url(home_url('/')); ?>" aria-label="<?php esc_attr_e('Plan Céramique Studio - Accueil', 'plan-ceramique-premium'); ?>">
+    <a class="site-logo" href="#accueil" aria-label="<?php echo esc_attr($brandHomeLabel); ?>">
       <span class="logo-mark" aria-hidden="true">D</span>
       <span class="logo-text">
-        <strong><?php esc_html_e('PLAN CÉRAMIQUE', 'plan-ceramique-premium'); ?></strong>
-        <small><?php esc_html_e('STUDIO', 'plan-ceramique-premium'); ?></small>
+        <strong><?php echo esc_html($brandName); ?></strong>
+        <small><?php echo esc_html($brandSuffix); ?></small>
       </span>
     </a>
 
@@ -32,19 +36,11 @@
 
     <div class="site-header__nav-shell" id="site-navigation">
       <nav class="site-nav" aria-label="<?php esc_attr_e('Navigation principale', 'plan-ceramique-premium'); ?>">
-        <ul class="site-nav__menu">
-          <li><a href="<?php echo esc_url(home_url('/')); ?>"><?php esc_html_e('Accueil', 'plan-ceramique-premium'); ?></a></li>
-          <li><a href="<?php echo esc_url(home_url('/#matieres')); ?>"><?php esc_html_e('Matières', 'plan-ceramique-premium'); ?></a></li>
-          <li><a href="<?php echo esc_url(home_url('/#ambiances')); ?>"><?php esc_html_e('Ambiances', 'plan-ceramique-premium'); ?></a></li>
-          <li><a href="<?php echo esc_url(home_url('/#applications')); ?>"><?php esc_html_e('Applications', 'plan-ceramique-premium'); ?></a></li>
-          <li><a href="<?php echo esc_url(home_url('/blog/')); ?>"><?php esc_html_e('Blog', 'plan-ceramique-premium'); ?></a></li>
-          <li><a href="<?php echo esc_url(home_url('/#avis')); ?>"><?php esc_html_e('Avis', 'plan-ceramique-premium'); ?></a></li>
-          <li><a href="<?php echo esc_url(home_url('/#devis')); ?>"><?php esc_html_e('Devis', 'plan-ceramique-premium'); ?></a></li>
-        </ul>
+        <?php pcp_render_nav_menu('primary', 'site-nav__menu'); ?>
       </nav>
 
-      <a class="site-header__cta" href="<?php echo esc_url(home_url('/#devis')); ?>">
-        <?php esc_html_e('Demander un devis', 'plan-ceramique-premium'); ?>
+      <a class="site-header__cta" href="#devis">
+        <?php echo esc_html($primaryCtaText); ?>
       </a>
     </div>
   </div>

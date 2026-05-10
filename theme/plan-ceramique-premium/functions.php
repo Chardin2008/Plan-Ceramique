@@ -4,6 +4,7 @@ require_once get_template_directory() . '/inc/setup.php';
 require_once get_template_directory() . '/inc/assets.php';
 require_once get_template_directory() . '/inc/settings.php';
 require_once get_template_directory() . '/inc/content-types.php';
+require_once get_template_directory() . '/inc/admin-content.php';
 require_once get_template_directory() . '/inc/mail-brake.php';
 require_once get_template_directory() . '/inc/custom-forms.php';
 
@@ -133,9 +134,119 @@ function pcp_asset_img(string $file): string
     return get_template_directory_uri() . '/assets/img/' . ltrim($file, '/');
 }
 
+function pcp_site_url(string $url): string
+{
+    if ($url === '') {
+        return home_url('/');
+    }
+
+    if (str_starts_with($url, '#')) {
+        return home_url('/' . $url);
+    }
+
+    if (str_starts_with($url, '/')) {
+        return home_url($url);
+    }
+
+    return $url;
+}
+
+function pcp_default_nav_items(string $location): array
+{
+    if ($location === 'footer') {
+        return [
+            ['url' => '#accueil', 'label' => 'Accueil'],
+            ['url' => '#matieres', 'label' => 'Matières'],
+            ['url' => '#ambiances', 'label' => 'Ambiances'],
+            ['url' => '#realisations', 'label' => 'Réalisations'],
+            ['url' => '#galerie', 'label' => 'Galerie'],
+            ['url' => '#avis', 'label' => 'Avis'],
+            ['url' => '#devis', 'label' => 'Devis'],
+        ];
+    }
+
+    return [
+        ['url' => '#accueil', 'label' => 'Accueil'],
+        ['url' => '#matieres', 'label' => 'Matières'],
+        ['url' => '#ambiances', 'label' => 'Ambiances'],
+        ['url' => '#realisations', 'label' => 'Réalisations'],
+        ['url' => '#applications', 'label' => 'Applications'],
+        ['url' => '#avis', 'label' => 'Avis'],
+    ];
+}
+
+function pcp_render_nav_menu(string $location, string $menu_class): void
+{
+    echo '<ul class="' . esc_attr($menu_class) . '">';
+
+    foreach (pcp_default_nav_items($location) as $item) {
+        echo '<li><a href="' . esc_url($item['url']) . '">' . esc_html($item['label']) . '</a></li>';
+    }
+
+    echo '</ul>';
+}
+
+function pcp_post_image_file(int $post_id, string $fallback = 'blog-material-choice.jpg'): string
+{
+    $post = get_post($post_id);
+
+    if (!$post) {
+        return $fallback;
+    }
+
+    $slug = (string) $post->post_name;
+
+    $postImages = [
+        'plan-de-travail-ceramique-ou-quartz' => 'blog-material-choice.jpg',
+        'prendre-les-mesures-plan-de-travail-ceramique' => 'texture-concrete-light.jpg',
+        'entretien-plan-de-travail-ceramique' => 'blog-ceramique-maintenance.jpg',
+        'finition-ceramique-cuisine-lumineuse' => 'texture-white-vein.jpg',
+        'plan-travail-ilot-central-ceramique' => 'island-light-ceramique.jpg',
+        'livraison-pose-plan-travail-ceramique' => 'kitchen-warm-ceramique.jpg',
+    ];
+
+    if (isset($postImages[$slug])) {
+        return $postImages[$slug];
+    }
+
+    if ($post->post_type === 'pcp_realisation') {
+        $projectType = strtolower((string) get_post_meta($post_id, 'pcp_project_type', true));
+        $mood = strtolower((string) get_post_meta($post_id, 'pcp_mood', true));
+        $haystack = strtolower($slug . ' ' . $projectType . ' ' . $mood);
+
+        if (str_contains($haystack, 'salle') || str_contains($haystack, 'bain')) {
+            return 'bathroom-light-ceramique.jpg';
+        }
+
+        if (str_contains($haystack, 'ilot') || str_contains($haystack, 'îlot')) {
+            return 'island-light-ceramique.jpg';
+        }
+
+        if (str_contains($haystack, 'credence') || str_contains($haystack, 'crédence')) {
+            return 'texture-white-vein.jpg';
+        }
+
+        if (str_contains($haystack, 'exterieur') || str_contains($haystack, 'extérieur')) {
+            return 'outdoor-light-ceramique.jpg';
+        }
+
+        if (str_contains($haystack, 'sauge')) {
+            return 'kitchen-sage-ceramique.jpg';
+        }
+
+        if (str_contains($haystack, 'warm') || str_contains($haystack, 'chaleur')) {
+            return 'kitchen-warm-ceramique.jpg';
+        }
+
+        return 'kitchen-white-ceramique.jpg';
+    }
+
+    return $fallback;
+}
+
 function pcp_post_image_url(int $post_id, string $fallback = 'blog-material-choice.jpg'): string
 {
-    return get_the_post_thumbnail_url($post_id, 'large') ?: pcp_asset_img($fallback);
+    return get_the_post_thumbnail_url($post_id, 'large') ?: pcp_asset_img(pcp_post_image_file($post_id, $fallback));
 }
 
 function pcp_post_meta(int $post_id, string $key, string $fallback = ''): string

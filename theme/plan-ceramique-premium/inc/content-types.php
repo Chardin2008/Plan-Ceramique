@@ -15,6 +15,7 @@ function pcp_register_content_types(): void
         array_merge(
             $common,
             [
+                'has_archive' => false,
                 'labels' => [
                     'name' => __('Réalisations', 'plan-ceramique-premium'),
                     'singular_name' => __('Réalisation', 'plan-ceramique-premium'),

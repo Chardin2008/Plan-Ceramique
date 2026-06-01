@@ -9,14 +9,17 @@ $brandName = pcp_get_setting('brand_name') ?: 'PLAN CÉRAMIQUE';
 $brandSuffix = pcp_get_setting('brand_suffix') ?: 'STUDIO';
 $brandHomeLabel = pcp_get_setting('brand_home_label') ?: 'Plan Céramique Studio - Accueil';
 $footerDescription = pcp_get_setting('footer_description');
-$footerContactText = 'Demander un devis';
+$footerContactText = pcp_get_setting('footer_contact_link_text') ?: 'Demander un devis';
+$footerContactUrl = pcp_site_url(pcp_get_setting('footer_contact_link_url') ?: '/contact/');
 $legalNoticeText = pcp_get_setting('footer_legal_notice_text') ?: 'Mentions légales';
+$legalNoticeUrl = pcp_site_url(pcp_get_setting('footer_legal_notice_url') ?: '/mentions-legales/');
+$footerSocialUrl = pcp_site_url(pcp_get_setting('footer_social_fallback_url') ?: '#devis');
 $copyrightName = pcp_get_setting('footer_copyright_name') ?: 'Plan Céramique Studio';
 ?>
 <footer class="site-footer">
   <div class="site-footer__inner">
     <div class="site-footer__brand">
-      <a class="site-logo" href="#accueil" aria-label="<?php echo esc_attr($brandHomeLabel); ?>">
+      <a class="site-logo" href="<?php echo esc_url(pcp_site_url('#accueil')); ?>" aria-label="<?php echo esc_attr($brandHomeLabel); ?>">
         <span class="logo-mark" aria-hidden="true">D</span>
         <span class="logo-text">
           <strong><?php echo esc_html($brandName); ?></strong>
@@ -60,21 +63,20 @@ $copyrightName = pcp_get_setting('footer_copyright_name') ?: 'Plan Céramique St
           </p>
         <?php endif; ?>
       </div>
-      <a class="site-footer__contact-link" href="#devis"><?php echo esc_html($footerContactText); ?></a>
     </div>
 
     <div class="site-footer__social">
       <p class="site-footer__heading"><?php echo esc_html(pcp_get_setting('footer_studio_heading') ?: 'Studio'); ?></p>
-      <a href="#devis"><?php echo esc_html(pcp_get_setting('footer_social_fallback_text') ?: 'Nous contacter'); ?></a>
+      <a href="<?php echo esc_url($footerSocialUrl); ?>"><?php echo esc_html(pcp_get_setting('footer_social_fallback_text') ?: 'Nous contacter'); ?></a>
     </div>
   </div>
 
   <div class="site-footer__bottom">
     <span>&copy; <?php echo esc_html($year); ?> <?php echo esc_html($copyrightName); ?></span>
     <div class="site-footer__legal">
-      <a href="#accueil"><?php echo esc_html($legalNoticeText); ?></a>
+      <a href="<?php echo esc_url($legalNoticeUrl); ?>"><?php echo esc_html($legalNoticeText); ?></a>
       <?php if ($privacyUrl) : ?>
-        <a href="#accueil"><?php echo esc_html(pcp_get_setting('footer_privacy_text') ?: 'Confidentialité'); ?></a>
+        <a href="<?php echo esc_url($privacyUrl); ?>"><?php echo esc_html(pcp_get_setting('footer_privacy_text') ?: 'Confidentialité'); ?></a>
       <?php endif; ?>
     </div>
   </div>

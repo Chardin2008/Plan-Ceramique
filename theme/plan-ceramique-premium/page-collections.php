@@ -1,9 +1,23 @@
 <?php
 get_header();
 
+$page_id = get_queried_object_id();
+$page_content = get_post_field('post_content', $page_id);
+
+if (function_exists('pcp_detail_has_blocks') && pcp_detail_has_blocks((string) $page_content)) :
+    ?>
+    <main id="main-content" class="site-main pcp-detail pcp-collections">
+      <?php while (have_posts()) : the_post(); ?>
+        <?php the_content(); ?>
+      <?php endwhile; ?>
+    </main>
+    <?php
+    get_footer();
+    return;
+endif;
+
 $asset_uri = static fn(string $file): string => get_template_directory_uri() . '/assets/images/' . $file;
 $page_url = static fn(string $path): string => home_url($path);
-$page_id = get_queried_object_id();
 $hero_image = pcp_admin_content_value($page_id, 'pcp_hero_image', 'hero-collections.jpg');
 $feature_image = pcp_admin_content_value($page_id, 'pcp_feature_image', 'hero-projects.jpg');
 

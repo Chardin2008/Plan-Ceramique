@@ -13,13 +13,16 @@ if (have_posts()) {
     the_post();
 }
 
+$floatingCtaText = pcp_get_setting('primary_cta_text') ?: 'Demander un devis';
+$floatingCtaUrl = pcp_site_url(pcp_get_setting('primary_cta_url') ?: '#devis');
+
 echo pcp_home_render_loader(get_queried_object_id());
 ?>
 <main id="main-content" class="site-main pcstudio">
     <?php the_content(); ?>
 
     <div class="pcstudio-floating-cta" data-floating-cta>
-        <a class="button" href="#devis"><?php esc_html_e('Demander un devis', 'plan-ceramique-premium'); ?></a>
+        <a class="button" href="<?php echo esc_url($floatingCtaUrl); ?>"><?php echo esc_html($floatingCtaText); ?></a>
         <a class="pcstudio-top-link" href="#accueil" aria-label="<?php esc_attr_e('Retour en haut', 'plan-ceramique-premium'); ?>">&uarr;</a>
     </div>
 </main>

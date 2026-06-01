@@ -8,11 +8,16 @@ $fallback = [
     ['title' => 'Îlot familial chaleureux', 'type' => 'Îlot', 'mood' => 'Warm Mineral', 'image' => 'kitchen-warm-ceramique.jpg', 'text' => 'Une surface robuste dans un intérieur doux et accueillant.'],
 ];
 $query = new WP_Query(['post_type' => 'pcp_realisation', 'posts_per_page' => 6, 'no_found_rows' => true]);
+$project_cta_text = pcp_get_setting('landing_project_card_cta_text') ?: 'Preparer un projet similaire';
 ?>
 <section class="pcstudio-section pcstudio-projects reveal-up" id="realisations">
   <div class="pcstudio-section__heading">
     <p class="pcstudio-label"><?php esc_html_e('Réalisations inspirantes', 'plan-ceramique-premium'); ?></p>
     <h2><?php esc_html_e('Des projets visuels pour se projeter dans la matière.', 'plan-ceramique-premium'); ?></h2>
+  </div>
+  <div class="pcstudio-projects__intro">
+    <p><?php echo esc_html(pcp_get_setting('landing_project_intro_text') ?: 'Chaque projet montre une facon concrete d utiliser la ceramique : ilot central, credence, plan complet, salle de bain ou detail de finition. L objectif est simple : vous aider a visualiser le bon rendu avant de demander un devis.'); ?></p>
+    <a class="button button--ghost" href="<?php echo esc_url(pcp_site_url('#devis')); ?>"><?php echo esc_html(pcp_get_setting('landing_project_intro_cta_text') ?: 'Parler de mon projet'); ?></a>
   </div>
   <div class="pcstudio-projects__grid">
     <?php if ($query->have_posts()) : ?>
@@ -25,7 +30,7 @@ $query = new WP_Query(['post_type' => 'pcp_realisation', 'posts_per_page' => 6, 
             <h3><?php the_title(); ?></h3>
             <p><?php echo esc_html(pcp_excerpt_text(get_post(), 20)); ?></p>
             <small><?php echo esc_html(pcp_post_meta($postId, 'pcp_mood', __('Ambiance premium', 'plan-ceramique-premium'))); ?></small>
-            <a href="#devis"><?php esc_html_e('Préparer un projet similaire', 'plan-ceramique-premium'); ?></a>
+            <a href="<?php echo esc_url(pcp_site_url('#devis')); ?>"><?php echo esc_html($project_cta_text); ?></a>
           </div>
         </article>
       <?php endwhile; wp_reset_postdata(); ?>
@@ -38,7 +43,7 @@ $query = new WP_Query(['post_type' => 'pcp_realisation', 'posts_per_page' => 6, 
             <h3><?php echo esc_html($item['title']); ?></h3>
             <p><?php echo esc_html($item['text']); ?></p>
             <small><?php echo esc_html($item['mood']); ?></small>
-            <a href="#devis"><?php esc_html_e('Préparer un projet similaire', 'plan-ceramique-premium'); ?></a>
+            <a href="<?php echo esc_url(pcp_site_url('#devis')); ?>"><?php echo esc_html($project_cta_text); ?></a>
           </div>
         </article>
       <?php endforeach; ?>

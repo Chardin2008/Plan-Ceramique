@@ -37,10 +37,19 @@ function pcp_post_topic_data(?WP_Post $post = null): array
 
     $topics = [
         'livraison-pose' => ['label' => 'Pose', 'icon' => 'P'],
+        'livraison' => ['label' => 'Pose', 'icon' => 'P'],
+        'pose' => ['label' => 'Pose', 'icon' => 'P'],
         'ilot' => ['label' => 'Îlot', 'icon' => 'I'],
+        'credence' => ['label' => 'Crédence', 'icon' => 'C'],
         'finition' => ['label' => 'Finition', 'icon' => 'F'],
+        'couleur' => ['label' => 'Finition', 'icon' => 'F'],
+        'marbre' => ['label' => 'Matière', 'icon' => 'M'],
+        'pierre' => ['label' => 'Matière', 'icon' => 'M'],
+        'beton' => ['label' => 'Matière', 'icon' => 'M'],
         'entretien' => ['label' => 'Entretien', 'icon' => 'E'],
         'mesures' => ['label' => 'Mesures', 'icon' => 'M'],
+        'devis' => ['label' => 'Devis', 'icon' => 'D'],
+        'budget' => ['label' => 'Budget', 'icon' => 'B'],
         'quartz' => ['label' => 'Matière', 'icon' => 'C'],
     ];
 
@@ -161,6 +170,7 @@ function pcp_default_nav_items(string $location): array
             ['url' => '#ambiances', 'label' => 'Ambiances'],
             ['url' => '#realisations', 'label' => 'Réalisations'],
             ['url' => '#galerie', 'label' => 'Galerie'],
+            ['url' => '#blog', 'label' => 'Blog'],
             ['url' => '#avis', 'label' => 'Avis'],
             ['url' => '#devis', 'label' => 'Devis'],
         ];
@@ -172,16 +182,61 @@ function pcp_default_nav_items(string $location): array
         ['url' => '#ambiances', 'label' => 'Ambiances'],
         ['url' => '#realisations', 'label' => 'Réalisations'],
         ['url' => '#applications', 'label' => 'Applications'],
+        ['url' => '#blog', 'label' => 'Blog'],
         ['url' => '#avis', 'label' => 'Avis'],
     ];
 }
 
 function pcp_render_nav_menu(string $location, string $menu_class): void
 {
+    if (has_nav_menu($location)) {
+        $locations = get_nav_menu_locations();
+        $menu_id = (int) ($locations[$location] ?? 0);
+        $menu_items = $menu_id > 0 ? wp_get_nav_menu_items($menu_id) : [];
+
+        if ($menu_items) {
+            $seen = [];
+            $primary_cta_url = pcp_site_url(pcp_get_setting('primary_cta_url') ?: '#devis');
+
+            echo '<ul class="' . esc_attr($menu_class) . '">';
+
+            foreach ($menu_items as $item) {
+                if ((int) $item->menu_item_parent !== 0) {
+                    continue;
+                }
+
+                $url = (string) $item->url;
+                $label = trim(wp_strip_all_tags((string) $item->title));
+                $key = mb_strtolower($label . '|' . untrailingslashit($url));
+                $normalized_url = untrailingslashit($url);
+                $normalized_cta_url = untrailingslashit($primary_cta_url);
+
+                if (
+                    $label === ''
+                    || isset($seen[$key])
+                    || ($location === 'primary' && $normalized_url === $normalized_cta_url)
+                    || ($location === 'primary' && str_contains(mb_strtolower($label), 'devis'))
+                ) {
+                    continue;
+                }
+
+                $seen[$key] = true;
+                $classes = array_filter(array_map('sanitize_html_class', (array) $item->classes));
+                $class_attr = $classes ? ' class="' . esc_attr(implode(' ', $classes)) . '"' : '';
+
+                echo '<li' . $class_attr . '><a href="' . esc_url(pcp_site_url($url)) . '">' . esc_html($label) . '</a></li>';
+            }
+
+            echo '</ul>';
+        }
+
+        return;
+    }
+
     echo '<ul class="' . esc_attr($menu_class) . '">';
 
     foreach (pcp_default_nav_items($location) as $item) {
-        echo '<li><a href="' . esc_url($item['url']) . '">' . esc_html($item['label']) . '</a></li>';
+        echo '<li><a href="' . esc_url(pcp_site_url($item['url'])) . '">' . esc_html($item['label']) . '</a></li>';
     }
 
     echo '</ul>';
@@ -247,7 +302,10 @@ function pcp_post_image_file(int $post_id, string $fallback = 'blog-material-cho
 
 function pcp_post_image_url(int $post_id, string $fallback = 'blog-material-choice.jpg'): string
 {
-    return get_the_post_thumbnail_url($post_id, 'large') ?: pcp_asset_img(pcp_post_image_file($post_id, $fallback));
+    $remoteImage = pcp_post_meta($post_id, '_pcp_article_image_url');
+
+    return get_the_post_thumbnail_url($post_id, 'large')
+        ?: ($remoteImage ?: pcp_asset_img(pcp_post_image_file($post_id, $fallback)));
 }
 
 function pcp_post_meta(int $post_id, string $key, string $fallback = ''): string

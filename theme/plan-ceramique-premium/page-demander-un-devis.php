@@ -1,8 +1,22 @@
 <?php
 get_header();
 
-$asset_uri = static fn(string $file): string => get_template_directory_uri() . '/assets/images/' . $file;
 $page_id = get_queried_object_id();
+$page_content = get_post_field('post_content', $page_id);
+
+if (function_exists('pcp_quote_has_blocks') && pcp_quote_has_blocks((string) $page_content)) :
+    ?>
+    <main id="main-content" class="site-main pcp-quote-page">
+      <?php while (have_posts()) : the_post(); ?>
+        <?php the_content(); ?>
+      <?php endwhile; ?>
+    </main>
+    <?php
+    get_footer();
+    return;
+endif;
+
+$asset_uri = static fn(string $file): string => get_template_directory_uri() . '/assets/images/' . $file;
 $hero_image = pcp_admin_content_value($page_id, 'pcp_hero_image', 'hero-quote.jpg');
 
 $steps = [

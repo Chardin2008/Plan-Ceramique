@@ -13,8 +13,9 @@ $query = new WP_Query([
     'posts_per_page' => 6,
     'no_found_rows' => true,
 ]);
+$material_cta_text = pcp_get_setting('landing_material_card_cta_text') ?: 'Demander un conseil matiere';
 ?>
-<section class="pcstudio-section pcstudio-materials reveal-up" id="matieres-dynamiques" data-filter-scope>
+<section class="pcstudio-section pcstudio-materials reveal-up" id="matieres" data-filter-scope>
   <div class="pcstudio-section__heading">
     <p class="pcstudio-label"><?php esc_html_e('Matières dynamiques', 'plan-ceramique-premium'); ?></p>
     <h2><?php esc_html_e('Collections céramiques à composer selon votre ambiance.', 'plan-ceramique-premium'); ?></h2>
@@ -38,7 +39,7 @@ $query = new WP_Query([
             <h3><?php the_title(); ?></h3>
             <p><?php echo esc_html(pcp_excerpt_text(get_post(), 18)); ?></p>
             <small><?php echo esc_html(pcp_post_meta($postId, 'pcp_mood', __('Ambiance à définir', 'plan-ceramique-premium'))); ?> · <?php echo esc_html(pcp_post_meta($postId, 'pcp_use', __('Usage polyvalent', 'plan-ceramique-premium'))); ?></small>
-            <a href="<?php the_permalink(); ?>"><?php esc_html_e('Voir la matière', 'plan-ceramique-premium'); ?></a>
+            <a href="<?php echo esc_url(pcp_site_url('#devis')); ?>"><?php echo esc_html($material_cta_text); ?></a>
           </div>
         </article>
       <?php endwhile; wp_reset_postdata(); ?>
@@ -51,7 +52,7 @@ $query = new WP_Query([
             <h3><?php echo esc_html($item['title']); ?></h3>
             <p><?php echo esc_html($item['text']); ?></p>
             <small><?php echo esc_html($item['mood']); ?> · <?php echo esc_html($item['use']); ?></small>
-            <a href="#devis"><?php esc_html_e('Demander un conseil matière', 'plan-ceramique-premium'); ?></a>
+            <a href="<?php echo esc_url(pcp_site_url('#devis')); ?>"><?php echo esc_html($material_cta_text); ?></a>
           </div>
         </article>
       <?php endforeach; ?>

@@ -574,6 +574,45 @@ function pcp_add_cron_interval(array $schedules): array
 }
 add_filter('cron_schedules', 'pcp_add_cron_interval');
 
+function pcp_form_captcha_secret(): string
+{
+    return wp_salt('nonce');
+}
+
+function pcp_form_captcha_hash(int $answer): string
+{
+    return hash_hmac('sha256', (string) $answer, pcp_form_captcha_secret());
+}
+
+function pcp_validate_captcha_request(): bool
+{
+    $answer = isset($_POST['captcha_answer']) ? absint(wp_unslash($_POST['captcha_answer'])) : 0;
+    $token = isset($_POST['captcha_token']) ? sanitize_text_field(wp_unslash($_POST['captcha_token'])) : '';
+
+    if ($answer < 1 || $token === '') {
+        return false;
+    }
+
+    return hash_equals(pcp_form_captcha_hash($answer), $token);
+}
+
+function pcp_render_captcha_field(): string
+{
+    $left = random_int(2, 8);
+    $right = random_int(2, 8);
+    $answer = $left + $right;
+
+    ob_start();
+    ?>
+    <label class="pcp-form-captcha">Anti-spam : combien font <?php echo esc_html((string) $left); ?> + <?php echo esc_html((string) $right); ?> ?
+      <input type="number" name="captcha_answer" inputmode="numeric" min="1" autocomplete="off" required>
+      <input type="hidden" name="captcha_token" value="<?php echo esc_attr(pcp_form_captcha_hash($answer)); ?>">
+    </label>
+    <?php
+
+    return (string) ob_get_clean();
+}
+
 function pcp_submit_form(): void
 {
     if (!check_ajax_referer('pcp_submit_form', 'nonce', false)) {
@@ -582,6 +621,10 @@ function pcp_submit_form(): void
 
     if (!empty($_POST['website'])) {
         wp_send_json_success(['message' => 'Merci, votre demande a bien ete envoyee.']);
+    }
+
+    if (!pcp_validate_captcha_request()) {
+        wp_send_json_error(['message' => 'Merci de valider la question anti-spam.'], 422);
     }
 
     $rateKey = pcp_form_rate_key();
@@ -706,6 +749,7 @@ function pcp_render_contact_form(): string
       <label><?php echo esc_html(pcp_form_setting('contact_form_message_label', 'Votre message')); ?>
         <textarea name="message" required></textarea>
       </label>
+      <?php echo pcp_render_captcha_field(); ?>
       <p class="pcp-cf7-submit"><input type="submit" value="<?php echo esc_attr(pcp_form_setting('contact_form_submit_text', 'Envoyer le message')); ?>"></p>
       <p class="pcp-form-note" data-pcp-form-status aria-live="polite"></p>
     </form>
@@ -763,6 +807,7 @@ function pcp_render_quote_form(): string
       <label><?php echo esc_html(pcp_form_setting('quote_form_file_label', 'Plan ou photo')); ?>
         <input type="file" name="project_file" accept=".jpg,.jpeg,.png,.pdf">
       </label>
+      <?php echo pcp_render_captcha_field(); ?>
       <input type="submit" value="<?php echo esc_attr(pcp_form_setting('quote_form_submit_text', 'Recevoir mon etude de projet')); ?>">
       <p class="pcp-form-note" data-pcp-form-status aria-live="polite"></p>
     </form>

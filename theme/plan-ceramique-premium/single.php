@@ -16,11 +16,27 @@
             'category__in' => $category ? [$category->term_id] : [],
         ]
     );
+    $blogPageId = (int) get_option('page_for_posts');
+    $blogUrl = $blogPageId ? get_permalink($blogPageId) : home_url('/blog/');
+    $backText = pcp_get_setting('article_back_text') ?: 'Retour au blog';
+    $asideHeading = pcp_get_setting('article_aside_heading') ?: 'Reperes';
+    $projectLabel = pcp_get_setting('article_project_label') ?: 'Projet ceramique';
+    $asideCtaText = pcp_get_setting('article_aside_cta_text') ?: 'Demander un devis';
+    $asideCtaUrl = pcp_site_url(pcp_get_setting('article_aside_cta_url') ?: '/#devis');
+    $prevText = pcp_get_setting('article_prev_text') ?: 'Article precedent';
+    $nextText = pcp_get_setting('article_next_text') ?: 'Article suivant';
+    $relatedEyebrow = pcp_get_setting('article_related_eyebrow') ?: 'A lire aussi';
+    $relatedTitle = pcp_get_setting('article_related_title') ?: 'Continuer a preparer votre projet.';
+    $ctaEyebrow = pcp_get_setting('article_cta_eyebrow') ?: 'Projet sur mesure';
+    $ctaTitle = pcp_get_setting('article_cta_title') ?: 'Besoin de traduire ces idees dans votre cuisine ?';
+    $ctaText = pcp_get_setting('article_cta_text') ?: 'Decrivez votre espace, vos dimensions et l’ambiance souhaitee. Nous vous aidons a cadrer une surface ceramique coherente avec votre projet.';
+    $ctaButtonText = pcp_get_setting('article_cta_button_text') ?: 'Preparer mon devis';
+    $ctaButtonUrl = pcp_site_url(pcp_get_setting('article_cta_button_url') ?: '/#devis');
     ?>
     <article <?php post_class('pcstudio-article'); ?>>
       <header class="pcstudio-article-hero">
         <div>
-          <a class="pcstudio-article-back" href="<?php echo esc_url(home_url('/blog/')); ?>"><?php esc_html_e('Retour au blog', 'plan-ceramique-premium'); ?></a>
+          <a class="pcstudio-article-back" href="<?php echo esc_url($blogUrl); ?>"><?php echo esc_html($backText); ?></a>
           <p class="pcstudio-label">
             <?php if ($category) : ?>
               <?php echo esc_html($category->name); ?> ·
@@ -39,15 +55,15 @@
 
       <div class="pcstudio-article-shell">
         <aside class="pcstudio-article-aside" aria-label="<?php esc_attr_e('Repères article', 'plan-ceramique-premium'); ?>">
-          <p class="pcstudio-label"><?php esc_html_e('Repères', 'plan-ceramique-premium'); ?></p>
+          <p class="pcstudio-label"><?php echo esc_html($asideHeading); ?></p>
           <ul>
             <li><?php echo esc_html(pcp_reading_time($postId)); ?></li>
             <?php if ($category) : ?>
               <li><?php echo esc_html($category->name); ?></li>
             <?php endif; ?>
-            <li><?php esc_html_e('Projet céramique', 'plan-ceramique-premium'); ?></li>
+            <li><?php echo esc_html($projectLabel); ?></li>
           </ul>
-          <a class="button button--ghost" href="<?php echo esc_url(home_url('/#devis')); ?>"><?php esc_html_e('Demander un devis', 'plan-ceramique-premium'); ?></a>
+          <a class="button button--ghost" href="<?php echo esc_url($asideCtaUrl); ?>"><?php echo esc_html($asideCtaText); ?></a>
         </aside>
 
         <div class="pcstudio-article-body entry-content">
@@ -56,15 +72,15 @@
       </div>
 
       <nav class="pcstudio-article-nav" aria-label="<?php esc_attr_e('Navigation entre articles', 'plan-ceramique-premium'); ?>">
-        <div><?php previous_post_link('%link', __('Article précédent', 'plan-ceramique-premium')); ?></div>
-        <div><?php next_post_link('%link', __('Article suivant', 'plan-ceramique-premium')); ?></div>
+        <div><?php previous_post_link('%link', esc_html($prevText)); ?></div>
+        <div><?php next_post_link('%link', esc_html($nextText)); ?></div>
       </nav>
 
       <?php if ($related->have_posts()) : ?>
         <section class="pcstudio-section pcstudio-related-posts">
           <div class="pcstudio-section__heading">
-            <p class="pcstudio-label"><?php esc_html_e('À lire aussi', 'plan-ceramique-premium'); ?></p>
-            <h2><?php esc_html_e('Continuer à préparer votre projet.', 'plan-ceramique-premium'); ?></h2>
+            <p class="pcstudio-label"><?php echo esc_html($relatedEyebrow); ?></p>
+            <h2><?php echo esc_html($relatedTitle); ?></h2>
           </div>
           <div class="pcstudio-blog__grid">
             <?php while ($related->have_posts()) : $related->the_post(); ?>
@@ -77,11 +93,11 @@
 
       <section class="pcstudio-article-cta">
         <div>
-          <p class="pcstudio-label"><?php esc_html_e('Projet sur mesure', 'plan-ceramique-premium'); ?></p>
-          <h2><?php esc_html_e('Besoin de traduire ces idées dans votre cuisine ?', 'plan-ceramique-premium'); ?></h2>
-          <p><?php esc_html_e('Décrivez votre espace, vos dimensions et l’ambiance souhaitée. Nous vous aidons à cadrer une surface céramique cohérente avec votre projet.', 'plan-ceramique-premium'); ?></p>
+          <p class="pcstudio-label"><?php echo esc_html($ctaEyebrow); ?></p>
+          <h2><?php echo esc_html($ctaTitle); ?></h2>
+          <p><?php echo esc_html($ctaText); ?></p>
         </div>
-        <a class="button" href="<?php echo esc_url(home_url('/#devis')); ?>"><?php esc_html_e('Préparer mon devis', 'plan-ceramique-premium'); ?></a>
+        <a class="button" href="<?php echo esc_url($ctaButtonUrl); ?>"><?php echo esc_html($ctaButtonText); ?></a>
       </section>
     </article>
   <?php endwhile; ?>

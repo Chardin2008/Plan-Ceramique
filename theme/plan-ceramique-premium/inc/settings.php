@@ -27,9 +27,35 @@ function pcp_settings_defaults(): array
         'footer_city_label' => 'Base',
         'footer_service_area_label' => 'Zone',
         'footer_social_fallback_text' => 'Nous contacter',
+        'footer_social_fallback_url' => '#devis',
         'footer_legal_notice_text' => 'Mentions legales',
         'footer_legal_notice_url' => '/mentions-legales/',
         'footer_privacy_text' => 'Confidentialite',
+        'blog_card_default_label' => 'Conseils',
+        'blog_card_read_more_text' => 'Lire l’article',
+        'blog_pagination_prev_text' => 'Articles recents',
+        'blog_pagination_next_text' => 'Articles suivants',
+        'blog_empty_text' => 'Aucun article publie pour le moment.',
+        'article_back_text' => 'Retour au blog',
+        'article_aside_heading' => 'Reperes',
+        'article_project_label' => 'Projet ceramique',
+        'article_aside_cta_text' => 'Demander un devis',
+        'article_aside_cta_url' => '/#devis',
+        'article_prev_text' => 'Article precedent',
+        'article_next_text' => 'Article suivant',
+        'article_related_eyebrow' => 'A lire aussi',
+        'article_related_title' => 'Continuer a preparer votre projet.',
+        'article_cta_eyebrow' => 'Projet sur mesure',
+        'article_cta_title' => 'Besoin de traduire ces idees dans votre cuisine ?',
+        'article_cta_text' => 'Decrivez votre espace, vos dimensions et l’ambiance souhaitee. Nous vous aidons a cadrer une surface ceramique coherente avec votre projet.',
+        'article_cta_button_text' => 'Preparer mon devis',
+        'article_cta_button_url' => '/#devis',
+        'landing_material_intro_text' => 'Choisissez une direction visuelle directement sur la landing : clair, chaleureux, pierre, beton ou naturel. Le devis part ensuite de cette intention, sans obliger le visiteur a quitter la page.',
+        'landing_material_intro_cta_text' => 'Recevoir un conseil matiere',
+        'landing_material_card_cta_text' => 'Demander un conseil matiere',
+        'landing_project_intro_text' => 'Chaque projet montre une facon concrete d utiliser la ceramique : ilot central, credence, plan complet, salle de bain ou detail de finition. L objectif est simple : vous aider a visualiser le bon rendu avant de demander un devis.',
+        'landing_project_intro_cta_text' => 'Parler de mon projet',
+        'landing_project_card_cta_text' => 'Preparer un projet similaire',
         'contact_form_name_label' => 'Nom',
         'contact_form_email_label' => 'Email',
         'contact_form_phone_label' => 'Telephone',
@@ -52,6 +78,9 @@ function pcp_settings_defaults(): array
         'quote_form_message_placeholder' => 'Decrivez votre cuisine, vos contraintes et le niveau de finition attendu.',
         'quote_form_file_label' => 'Plan ou photo',
         'quote_form_submit_text' => 'Recevoir mon etude de projet',
+        'quote_wizard_info_title' => 'Informations',
+        'quote_wizard_prev_text' => 'Precedent',
+        'quote_wizard_next_text' => 'Continuer',
         'form_recipient_email' => getenv('PCP_FORM_RECIPIENT') ?: 'hello@mpc.contact',
         'google_site_verification' => '',
     ];
@@ -103,9 +132,35 @@ function pcp_register_settings(): void
                     'footer_city_label' => sanitize_text_field($input['footer_city_label'] ?? ''),
                     'footer_service_area_label' => sanitize_text_field($input['footer_service_area_label'] ?? ''),
                     'footer_social_fallback_text' => sanitize_text_field($input['footer_social_fallback_text'] ?? ''),
+                    'footer_social_fallback_url' => esc_url_raw($input['footer_social_fallback_url'] ?? ''),
                     'footer_legal_notice_text' => sanitize_text_field($input['footer_legal_notice_text'] ?? ''),
                     'footer_legal_notice_url' => esc_url_raw($input['footer_legal_notice_url'] ?? ''),
                     'footer_privacy_text' => sanitize_text_field($input['footer_privacy_text'] ?? ''),
+                    'blog_card_default_label' => sanitize_text_field($input['blog_card_default_label'] ?? ''),
+                    'blog_card_read_more_text' => sanitize_text_field($input['blog_card_read_more_text'] ?? ''),
+                    'blog_pagination_prev_text' => sanitize_text_field($input['blog_pagination_prev_text'] ?? ''),
+                    'blog_pagination_next_text' => sanitize_text_field($input['blog_pagination_next_text'] ?? ''),
+                    'blog_empty_text' => sanitize_text_field($input['blog_empty_text'] ?? ''),
+                    'article_back_text' => sanitize_text_field($input['article_back_text'] ?? ''),
+                    'article_aside_heading' => sanitize_text_field($input['article_aside_heading'] ?? ''),
+                    'article_project_label' => sanitize_text_field($input['article_project_label'] ?? ''),
+                    'article_aside_cta_text' => sanitize_text_field($input['article_aside_cta_text'] ?? ''),
+                    'article_aside_cta_url' => esc_url_raw($input['article_aside_cta_url'] ?? ''),
+                    'article_prev_text' => sanitize_text_field($input['article_prev_text'] ?? ''),
+                    'article_next_text' => sanitize_text_field($input['article_next_text'] ?? ''),
+                    'article_related_eyebrow' => sanitize_text_field($input['article_related_eyebrow'] ?? ''),
+                    'article_related_title' => sanitize_text_field($input['article_related_title'] ?? ''),
+                    'article_cta_eyebrow' => sanitize_text_field($input['article_cta_eyebrow'] ?? ''),
+                    'article_cta_title' => sanitize_text_field($input['article_cta_title'] ?? ''),
+                    'article_cta_text' => sanitize_textarea_field($input['article_cta_text'] ?? ''),
+                    'article_cta_button_text' => sanitize_text_field($input['article_cta_button_text'] ?? ''),
+                    'article_cta_button_url' => esc_url_raw($input['article_cta_button_url'] ?? ''),
+                    'landing_material_intro_text' => sanitize_textarea_field($input['landing_material_intro_text'] ?? ''),
+                    'landing_material_intro_cta_text' => sanitize_text_field($input['landing_material_intro_cta_text'] ?? ''),
+                    'landing_material_card_cta_text' => sanitize_text_field($input['landing_material_card_cta_text'] ?? ''),
+                    'landing_project_intro_text' => sanitize_textarea_field($input['landing_project_intro_text'] ?? ''),
+                    'landing_project_intro_cta_text' => sanitize_text_field($input['landing_project_intro_cta_text'] ?? ''),
+                    'landing_project_card_cta_text' => sanitize_text_field($input['landing_project_card_cta_text'] ?? ''),
                     'contact_form_name_label' => sanitize_text_field($input['contact_form_name_label'] ?? ''),
                     'contact_form_email_label' => sanitize_text_field($input['contact_form_email_label'] ?? ''),
                     'contact_form_phone_label' => sanitize_text_field($input['contact_form_phone_label'] ?? ''),
@@ -128,6 +183,9 @@ function pcp_register_settings(): void
                     'quote_form_message_placeholder' => sanitize_text_field($input['quote_form_message_placeholder'] ?? ''),
                     'quote_form_file_label' => sanitize_text_field($input['quote_form_file_label'] ?? ''),
                     'quote_form_submit_text' => sanitize_text_field($input['quote_form_submit_text'] ?? ''),
+                    'quote_wizard_info_title' => sanitize_text_field($input['quote_wizard_info_title'] ?? ''),
+                    'quote_wizard_prev_text' => sanitize_text_field($input['quote_wizard_prev_text'] ?? ''),
+                    'quote_wizard_next_text' => sanitize_text_field($input['quote_wizard_next_text'] ?? ''),
                     'form_recipient_email' => sanitize_email($input['form_recipient_email'] ?? ''),
                     'google_site_verification' => sanitize_text_field($input['google_site_verification'] ?? ''),
                 ];
@@ -355,9 +413,49 @@ function pcp_render_settings_page(): void
                   pcp_render_settings_text_field($settings, 'footer_city_label', __('Libelle ville footer', 'plan-ceramique-premium'), 'text');
                   pcp_render_settings_text_field($settings, 'footer_service_area_label', __('Libelle zone footer', 'plan-ceramique-premium'), 'text');
                   pcp_render_settings_text_field($settings, 'footer_social_fallback_text', __('Texte lien social de secours', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'footer_social_fallback_url', __('URL lien social de secours', 'plan-ceramique-premium'), 'text');
                   pcp_render_settings_text_field($settings, 'footer_legal_notice_text', __('Texte mentions legales', 'plan-ceramique-premium'), 'text');
                   pcp_render_settings_text_field($settings, 'footer_legal_notice_url', __('URL mentions legales', 'plan-ceramique-premium'), 'text');
                   pcp_render_settings_text_field($settings, 'footer_privacy_text', __('Texte confidentialite', 'plan-ceramique-premium'), 'text');
+              }
+          );
+
+          pcp_render_settings_section(
+              __('Blog et articles', 'plan-ceramique-premium'),
+              __('Textes visibles sur la page blog, les cartes articles et les pages article.', 'plan-ceramique-premium'),
+              static function () use ($settings): void {
+                  pcp_render_settings_text_field($settings, 'blog_card_default_label', __('Carte article - libelle sans categorie', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'blog_card_read_more_text', __('Carte article - lien', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'blog_pagination_prev_text', __('Blog - pagination precedente', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'blog_pagination_next_text', __('Blog - pagination suivante', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'blog_empty_text', __('Blog - texte aucun article', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_back_text', __('Article - retour blog', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_aside_heading', __('Article - titre reperes', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_project_label', __('Article - libelle projet', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_aside_cta_text', __('Article - bouton aside', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_aside_cta_url', __('Article - URL bouton aside', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_prev_text', __('Article - lien precedent', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_next_text', __('Article - lien suivant', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_related_eyebrow', __('Article - eyebrow articles lies', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_related_title', __('Article - titre articles lies', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_cta_eyebrow', __('Article - eyebrow CTA final', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_cta_title', __('Article - titre CTA final', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_textarea_field($settings, 'article_cta_text', __('Article - texte CTA final', 'plan-ceramique-premium'));
+                  pcp_render_settings_text_field($settings, 'article_cta_button_text', __('Article - bouton CTA final', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'article_cta_button_url', __('Article - URL CTA final', 'plan-ceramique-premium'), 'text');
+              }
+          );
+
+          pcp_render_settings_section(
+              __('Landing one-page', 'plan-ceramique-premium'),
+              __('Textes de conversion visibles sur la page d accueil, sans modifier les contenus SEO des pages et articles.', 'plan-ceramique-premium'),
+              static function () use ($settings): void {
+                  pcp_render_settings_textarea_field($settings, 'landing_material_intro_text', __('Matieres - texte intro', 'plan-ceramique-premium'));
+                  pcp_render_settings_text_field($settings, 'landing_material_intro_cta_text', __('Matieres - bouton intro', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'landing_material_card_cta_text', __('Matieres - lien cartes', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_textarea_field($settings, 'landing_project_intro_text', __('Realisations - texte intro', 'plan-ceramique-premium'));
+                  pcp_render_settings_text_field($settings, 'landing_project_intro_cta_text', __('Realisations - bouton intro', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'landing_project_card_cta_text', __('Realisations - lien cartes', 'plan-ceramique-premium'), 'text');
               }
           );
 
@@ -412,6 +510,9 @@ function pcp_render_settings_page(): void
                   pcp_render_settings_text_field($settings, 'quote_form_message_placeholder', __('Devis - aide message', 'plan-ceramique-premium'), 'text');
                   pcp_render_settings_text_field($settings, 'quote_form_file_label', __('Devis - libelle fichier', 'plan-ceramique-premium'), 'text');
                   pcp_render_settings_text_field($settings, 'quote_form_submit_text', __('Devis - bouton', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'quote_wizard_info_title', __('Devis accueil - titre informations', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'quote_wizard_prev_text', __('Devis accueil - bouton precedent', 'plan-ceramique-premium'), 'text');
+                  pcp_render_settings_text_field($settings, 'quote_wizard_next_text', __('Devis accueil - bouton suivant', 'plan-ceramique-premium'), 'text');
               }
           );
           ?>

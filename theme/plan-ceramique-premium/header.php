@@ -3,6 +3,7 @@ $brandName = pcp_get_setting('brand_name') ?: 'PLAN CÉRAMIQUE';
 $brandSuffix = pcp_get_setting('brand_suffix') ?: 'STUDIO';
 $brandHomeLabel = pcp_get_setting('brand_home_label') ?: 'Plan Céramique Studio - Accueil';
 $primaryCtaText = pcp_get_setting('primary_cta_text') ?: 'Demander un devis';
+$primaryCtaUrl = pcp_site_url(pcp_get_setting('primary_cta_url') ?: '#devis');
 ?>
 <!doctype html>
 <html <?php language_attributes(); ?>>
@@ -20,7 +21,7 @@ $primaryCtaText = pcp_get_setting('primary_cta_text') ?: 'Demander un devis';
 
 <header class="site-header" data-site-header>
   <div class="site-header__inner">
-    <a class="site-logo" href="#accueil" aria-label="<?php echo esc_attr($brandHomeLabel); ?>">
+    <a class="site-logo" href="<?php echo esc_url(pcp_site_url('#accueil')); ?>" aria-label="<?php echo esc_attr($brandHomeLabel); ?>">
       <span class="logo-mark" aria-hidden="true">D</span>
       <span class="logo-text">
         <strong><?php echo esc_html($brandName); ?></strong>
@@ -39,7 +40,7 @@ $primaryCtaText = pcp_get_setting('primary_cta_text') ?: 'Demander un devis';
         <?php pcp_render_nav_menu('primary', 'site-nav__menu'); ?>
       </nav>
 
-      <a class="site-header__cta" href="#devis">
+      <a class="site-header__cta" href="<?php echo esc_url($primaryCtaUrl); ?>">
         <?php echo esc_html($primaryCtaText); ?>
       </a>
     </div>

@@ -32,6 +32,28 @@ function pcp_fast_message(string $key): string
     return trim(strip_tags((string) ($_POST[$key] ?? '')));
 }
 
+function pcp_fast_captcha_secret(): string
+{
+    return function_exists('wp_salt') ? wp_salt('nonce') : 'plan-ceramique-fast-form-captcha';
+}
+
+function pcp_fast_captcha_hash(int $answer): string
+{
+    return hash_hmac('sha256', (string) $answer, pcp_fast_captcha_secret());
+}
+
+function pcp_fast_validate_captcha(): bool
+{
+    $answer = max(0, (int) ($_POST['captcha_answer'] ?? 0));
+    $token = trim(strip_tags((string) ($_POST['captcha_token'] ?? '')));
+
+    if ($answer < 1 || $token === '') {
+        return false;
+    }
+
+    return hash_equals(pcp_fast_captcha_hash($answer), $token);
+}
+
 function pcp_fast_form_recipient(): string
 {
     if (function_exists('pcp_get_setting')) {
@@ -116,6 +138,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 
 if (!empty($_POST['website'])) {
     pcp_fast_json(true, 'Merci, votre demande a bien ete envoyee.');
+}
+
+if (!pcp_fast_validate_captcha()) {
+    pcp_fast_json(false, 'Merci de valider la question anti-spam.', 422);
 }
 
 pcp_fast_rate_limit();

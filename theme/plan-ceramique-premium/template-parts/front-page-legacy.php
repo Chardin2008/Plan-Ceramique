@@ -4,6 +4,8 @@ get_header();
 $asset_img = static fn(string $file): string => get_template_directory_uri() . '/assets/img/' . $file;
 $page_id = get_queried_object_id();
 $hero_image = pcp_admin_content_value($page_id, 'pcp_hero_image', 'hero-light-ceramique.jpg');
+$posts_page_id = (int) get_option('page_for_posts');
+$blog_url = $posts_page_id ? (get_permalink($posts_page_id) ?: home_url('/blog/')) : home_url('/blog/');
 
 $surfaceCards = [
     ['num' => '01', 'title' => 'Chaleur', 'text' => 'Une surface céramique pensée pour les cuisines exigeantes et les usages quotidiens intensifs.'],
@@ -368,14 +370,14 @@ $fallbackPosts = [
   <?php get_template_part('template-parts/section', 'before-after'); ?>
   <?php get_template_part('template-parts/section', 'gallery'); ?>
 
-  <section class="pcstudio-section pcstudio-blog reveal-up">
+  <section class="pcstudio-section pcstudio-blog reveal-up" id="blog">
     <div class="pcstudio-section__heading">
       <p class="pcstudio-label">Conseils & inspirations</p>
       <h2>Guides, tendances et idées pour imaginer votre futur plan de travail.</h2>
     </div>
     <div class="pcstudio-blog__grid">
       <?php
-      $landingPosts = new WP_Query(['posts_per_page' => 3, 'ignore_sticky_posts' => true]);
+      $landingPosts = new WP_Query(['post_type' => 'post', 'posts_per_page' => 3, 'ignore_sticky_posts' => true, 'no_found_rows' => true]);
       if ($landingPosts->have_posts()) :
           while ($landingPosts->have_posts()) :
               $landingPosts->the_post();
@@ -390,14 +392,14 @@ $fallbackPosts = [
           <p class="pcstudio-label"><?php echo esc_html($post['cat']); ?></p>
           <h3><?php echo esc_html($post['title']); ?></h3>
           <p><?php echo esc_html($post['text']); ?></p>
-          <a href="#devis">Demander un conseil</a>
+          <a href="<?php echo esc_url($blog_url); ?>">Lire les conseils</a>
         </article>
       <?php
           endforeach;
       endif;
       ?>
     </div>
-    <a class="button button--ghost pcstudio-blog__more" href="#devis">Demander un conseil</a>
+    <a class="button button--ghost pcstudio-blog__more" href="<?php echo esc_url($blog_url); ?>">Voir tous les articles</a>
   </section>
 
   <?php get_template_part('template-parts/section', 'testimonials'); ?>
@@ -449,6 +451,7 @@ $fallbackPosts = [
           <label>Dimensions approximatives<input type="text" name="dimensions_display" data-wizard-dimensions-display placeholder="Ex. 320 x 65 cm + îlot"></label>
           <label class="is-wide">Message<textarea name="message_display" data-wizard-message-display placeholder="Décrivez votre espace, vos envies et vos contraintes."></textarea></label>
         </div>
+        <?php echo function_exists('pcp_render_captcha_field') ? pcp_render_captcha_field() : ''; ?>
         <div class="pcstudio-wizard__summary" data-wizard-summary></div>
       </div>
       <div class="pcstudio-wizard__actions">

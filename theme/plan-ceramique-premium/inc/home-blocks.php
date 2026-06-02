@@ -921,6 +921,70 @@ function pcp_render_home_final_cta_block(array $attrs): string
     return (string) ob_get_clean();
 }
 
+function pcp_home_friend_links(array $attrs): array
+{
+    $default = implode(
+        "\n",
+        [
+            'Dekton | https://plan-travail-dekton.com',
+            'Granit | https://plan-cuisine-granit.com',
+            'Table marbre | https://table-marbre.com',
+            'Quartz | https://plan-travail-quartz.fr',
+            'Plan travail céramique | https://meilleur-plan-cuisine.fr/plan-de-travail-et-cuisine/ceramique/',
+        ]
+    );
+    $raw = pcp_home_attr($attrs, 'links', $default);
+    $links = [];
+
+    foreach (preg_split('/\r\n|\r|\n/', $raw) ?: [] as $line) {
+        $line = trim($line);
+
+        if ($line === '') {
+            continue;
+        }
+
+        [$label, $url] = array_pad(array_map('trim', explode('|', $line, 2)), 2, '');
+
+        if ($label === '' || $url === '') {
+            continue;
+        }
+
+        $links[] = [
+            'label' => $label,
+            'url' => $url,
+        ];
+    }
+
+    return $links;
+}
+
+function pcp_render_home_friend_sites_block(array $attrs): string
+{
+    $links = pcp_home_friend_links($attrs);
+
+    if (!$links) {
+        return '';
+    }
+
+    ob_start();
+    ?>
+    <section class="pcstudio-section pcstudio-friend-sites reveal-up">
+      <div class="pcstudio-friend-sites__heading">
+        <p class="pcstudio-label"><?php echo esc_html(pcp_home_attr($attrs, 'eyebrow', 'Sites amis')); ?></p>
+        <h2><?php echo esc_html(pcp_home_attr($attrs, 'title', 'Autres ressources autour des plans de travail')); ?></h2>
+        <p><?php echo esc_html(pcp_home_attr($attrs, 'text', 'Retrouvez aussi nos sites partenaires dédiés aux matériaux de cuisine, aux plans de travail et aux surfaces haut de gamme.')); ?></p>
+      </div>
+      <div class="pcstudio-friend-sites__links" aria-label="<?php esc_attr_e('Sites amis', 'plan-ceramique-premium'); ?>">
+        <?php foreach ($links as $link) : ?>
+          <a href="<?php echo esc_url($link['url']); ?>" target="_blank" rel="noopener"><?php echo esc_html($link['label']); ?></a>
+        <?php endforeach; ?>
+      </div>
+    </section>
+    <?php
+
+    return (string) ob_get_clean();
+}
+
 function pcp_render_services_hero_block(array $attrs): string
 {
     $post_id = pcp_home_current_post_id();
@@ -1529,6 +1593,15 @@ function pcp_home_register_blocks(): void
             ),
             'render_callback' => 'pcp_render_home_final_cta_block',
         ],
+        'home-friend-sites' => [
+            'attributes' => array_merge(
+                $text_attrs,
+                [
+                    'links' => ['type' => 'string', 'default' => ''],
+                ]
+            ),
+            'render_callback' => 'pcp_render_home_friend_sites_block',
+        ],
         'blog-hero' => [
             'attributes' => array_merge(
                 $text_attrs,
@@ -1983,6 +2056,7 @@ function pcp_home_default_block_content(int $post_id = 0): string
             'primaryText' => $meta('pcp_final_cta_button_text'),
             'primaryUrl' => $meta('pcp_final_cta_button_url'),
         ],
+        'home-friend-sites' => [],
     ];
     $block_names = [
         'home-hero',
@@ -2004,6 +2078,7 @@ function pcp_home_default_block_content(int $post_id = 0): string
         'home-testimonials',
         'home-quote',
         'home-final-cta',
+        'home-friend-sites',
     ];
 
     return implode(

@@ -184,6 +184,16 @@
       ],
     },
     {
+      name: 'pcp/home-friend-sites',
+      title: 'Accueil - Sites amis',
+      controls: [
+        text('Eyebrow', 'eyebrow'),
+        text('Titre', 'title'),
+        area('Texte', 'text'),
+        area('Liens', 'links', 'Format : libelle | URL. Un lien par ligne.'),
+      ],
+    },
+    {
       name: 'pcp/blog-hero',
       title: 'Blog - Hero',
       controls: [
